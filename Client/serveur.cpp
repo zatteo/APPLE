@@ -17,13 +17,20 @@ void Serveur::connectMPV(QString adresse)
     connect(socketMPV, SIGNAL(readyRead()), this, SLOT(readSocket()));
 
     if(socketMPV->waitForConnected())
-        qDebug() << "Connecté à MPV : " << adresse;
+        qDebug() << "Connecté à MPV :" << adresse;
     else {
         socketMPV->error();
     }
 
+    // on récupère l'état actuel du lecteur
+    getCurrentStateMPV();
+
+    // on s'inscrit aux changements d'états pour gérer le multi-utilisateur
+    subscribeChangingStateMPV();
+
+    // test
     loadAndPlayMPV("/home/zatteo/Music/Augenbling Respect.mp3");
-    positionMPV(50);
+    setPositionMPV(50);
 }
 
 Serveur::~Serveur() {
@@ -33,20 +40,11 @@ Serveur::~Serveur() {
 /* charge un fichier et lance la lecture sur MPV
  * nomDuFichier
  */
-void Serveur::loadAndPlayMPV(QString nomDuFichier){
-    QJsonObject commandeMPV; // objet qui contient la commande
+void Serveur::loadAndPlayMPV(QString nomDuFichier)
+{
+    QJsonObject commandeMPV = buildACommandForMPV({"loadfile", nomDuFichier});
 
-    // on construit la commande
-    QJsonArray commandeTemporaireMPV;
-    commandeTemporaireMPV.append("loadfile"); // nom de la commande
-    commandeTemporaireMPV.append(nomDuFichier); // argument(s)
-
-    commandeMPV["command"] = commandeTemporaireMPV;
-
-    QByteArray bytes = QJsonDocument(commandeMPV).toJson(QJsonDocument::Compact) + "\n";
-    if(socketMPV != NULL) {
-      socketMPV->write(bytes.data(), bytes.length());
-    }
+    sendToMPV(commandeMPV);
 }
 
 /* met en play/pause la lecture sur MPV
@@ -54,46 +52,24 @@ void Serveur::loadAndPlayMPV(QString nomDuFichier){
  */
 void Serveur::playMPV(bool play)
 {
-    QJsonObject commandeMPV; // objet qui contient la commande
+    QJsonObject commandeMPV = buildACommandForMPV({"set_property", "pause", !play});
 
-    // on construit la commande
-    QJsonArray commandeTemporaireMPV;
-    commandeTemporaireMPV.append("set_property"); // nom de la commande
-    commandeTemporaireMPV.append("pause"); // argument(s)
-    commandeTemporaireMPV.append(!play);
-
-    commandeMPV["command"] = commandeTemporaireMPV;
-
-    QByteArray bytes = QJsonDocument(commandeMPV).toJson(QJsonDocument::Compact) + "\n";
-    if(socketMPV != NULL) {
-      socketMPV->write(bytes.data(), bytes.length());
-    }
+    sendToMPV(commandeMPV);
 }
 
 /* change le volume sur MPV
  * int volume : 0 < volume < 100
  */
-void Serveur::volumeMPV(int volume)
+void Serveur::setVolumeMPV(int volume)
 {
     if(volume > 100)
         volume = 100;
     else if(volume < 0)
         volume = 0;
 
-    QJsonObject commandeMPV; // objet qui contient la commande
+    QJsonObject commandeMPV = buildACommandForMPV({"set_property", "volume", volume});
 
-    // on construit la commande
-    QJsonArray commandeTemporaireMPV;
-    commandeTemporaireMPV.append("set_property"); // nom de la commande
-    commandeTemporaireMPV.append("volume"); // argument(s)
-    commandeTemporaireMPV.append(volume);
-
-    commandeMPV["command"] = commandeTemporaireMPV;
-
-    QByteArray bytes = QJsonDocument(commandeMPV).toJson(QJsonDocument::Compact) + "\n";
-    if(socketMPV != NULL) {
-      socketMPV->write(bytes.data(), bytes.length());
-    }
+    sendToMPV(commandeMPV);
 }
 
 /* mute le volume sur MPV
@@ -101,43 +77,21 @@ void Serveur::volumeMPV(int volume)
  */
 void Serveur::muteMPV(bool mute)
 {
-    QJsonObject commandeMPV; // objet qui contient la commande
+    QJsonObject commandeMPV = buildACommandForMPV({"set_property", "mute", mute});
 
-    // on construit la commande
-    QJsonArray commandeTemporaireMPV;
-    commandeTemporaireMPV.append("set_property"); // nom de la commande
-    commandeTemporaireMPV.append("mute"); // argument(s)
-    commandeTemporaireMPV.append(mute);
-
-    commandeMPV["command"] = commandeTemporaireMPV;
-
-    QByteArray bytes = QJsonDocument(commandeMPV).toJson(QJsonDocument::Compact) + "\n";
-    if(socketMPV != NULL) {
-      socketMPV->write(bytes.data(), bytes.length());
-    }
+    sendToMPV(commandeMPV);
 }
 
 /* change la position de la musique sur MPV
  * int position : en seconde
  */
-void Serveur::positionMPV(int position)
+void Serveur::setPositionMPV(int position)
 {
     QString positionFormatee = "+" + QString::number(position);
 
-    QJsonObject commandeMPV; // objet qui contient la commande
+    QJsonObject commandeMPV = buildACommandForMPV({"set_property", "start", positionFormatee});
 
-    // on construit la commande
-    QJsonArray commandeTemporaireMPV;
-    commandeTemporaireMPV.append("set_property"); // nom de la commande
-    commandeTemporaireMPV.append("start"); // argument(s)
-    commandeTemporaireMPV.append(positionFormatee);
-
-    commandeMPV["command"] = commandeTemporaireMPV;
-
-    QByteArray bytes = QJsonDocument(commandeMPV).toJson(QJsonDocument::Compact) + "\n";
-    if(socketMPV != NULL) {
-      socketMPV->write(bytes.data(), bytes.length());
-    }
+    sendToMPV(commandeMPV);
 }
 
 void Serveur::readSocket()
@@ -152,4 +106,41 @@ void Serveur::readSocket()
         // ici on a reçu une réponse de MPV
         // -> appeler une fonction update qui met à jour l'interface et l'état du programme
     }
+}
+
+/* construit une commande JSON pour MPV
+ * QList arguments : la liste des arguments de la commande
+ */
+QJsonObject Serveur::buildACommandForMPV(QJsonArray arguments)
+{
+    QJsonObject commandeMPV; // objet qui contient la commande
+
+    commandeMPV["command"] = arguments;
+
+    return commandeMPV;
+}
+
+/* envoie un objet JSON à MPV
+ * QJsonObject json : l'objet à envoyer qui est formaté pour MPV
+ */
+void Serveur::sendToMPV(QJsonObject json)
+{
+    QByteArray bytes = QJsonDocument(json).toJson(QJsonDocument::Compact) + "\n";
+    if(socketMPV != NULL) {
+      socketMPV->write(bytes.data(), bytes.length());
+    }
+}
+
+/* récupèration de l'état actuel de MPV
+ */
+void Serveur::getCurrentStateMPV()
+{
+
+}
+
+/* inscription aux changements d'états de MPV
+*/
+void Serveur::subscribeChangingStateMPV()
+{
+
 }

@@ -14,15 +14,19 @@ public:
     void connectMPV(QString adresse);
     void loadAndPlayMPV(QString nomDuFichier); // charge un fichier et lance la lecture sur MPV
     void playMPV(bool play); // met en play/pause la lecture sur MPV
-    void volumeMPV(int volume); // change le volume sur MPV
+    void setVolumeMPV(int volume); // change le volume sur MPV
     void muteMPV(bool mute); // mute le volume sur MPV
-    void positionMPV(int position); // change la position de la musique sur MPV
+    void setPositionMPV(int position); // change la position de la musique sur MPV
 
 private slots:
     void readSocket();
 
 private:
     QLocalSocket *socketMPV = NULL;
+    QJsonObject buildACommandForMPV(QJsonArray arguments); // construit une commande JSON pour MPV
+    void sendToMPV(QJsonObject json); // envoie un objet JSON à MPV
+    void getCurrentStateMPV(); // récupèration de l'état actuel de MPV
+    void subscribeChangingStateMPV(); // inscription aux changements d'états de MPV    
 };
 
 #endif // SERVEUR_H
