@@ -11,18 +11,18 @@ class Serveur: public QObject
 public:
     explicit Serveur(QObject *parent = 0);
     ~Serveur();
-
-private slots:
-    void readSocket();
-
-private:
-    QLocalSocket *socketMPV = NULL;
+    void connectMPV(QString adresse);
     void loadAndPlayMPV(QString nomDuFichier); // charge un fichier et lance la lecture sur MPV
     void playMPV(bool play); // met en play/pause la lecture sur MPV
     void volumeMPV(int volume); // change le volume sur MPV
     void muteMPV(bool mute); // mute le volume sur MPV
     void positionMPV(int position); // change la position de la musique sur MPV
 
+private slots:
+    void readSocket();
+
+private:
+    QLocalSocket *socketMPV = NULL;
 };
 
 #endif // SERVEUR_H

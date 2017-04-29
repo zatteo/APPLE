@@ -5,14 +5,19 @@
 #include <QJsonDocument>
 #include <QThread>
 
-Serveur::Serveur(QObject *parent) : QObject(parent), socketMPV(new QLocalSocket(this))
+Serveur::Serveur(QObject *parent) : QObject(parent), socketMPV(new QLocalSocket(this)){}
+
+/* se connecte à MPV de manière synchrone (toutes les autres commandes sont asynchrones)
+ * QString adresse
+ */
+void Serveur::connectMPV(QString adresse)
 {
-    socketMPV->connectToServer("/tmp/mpv-socket"); // nom du socket en statique pour le moment
+    socketMPV->connectToServer(adresse); // connexion au serveur
 
     connect(socketMPV, SIGNAL(readyRead()), this, SLOT(readSocket()));
 
     if(socketMPV->waitForConnected())
-        qDebug() << "connected to mpv";
+        qDebug() << "Connecté à MPV : " << adresse;
     else {
         socketMPV->error();
     }
