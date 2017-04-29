@@ -17,7 +17,10 @@ private slots:
 
 private:
     QLocalSocket *socketMPV = NULL;
-    void loadfileMPV(QString nomDuFichier);
+    void loadAndPlayMPV(QString nomDuFichier); // charge un fichier et lance la lecture sur MPV
+    void playMPV(bool play); // met en play/pause la lecture sur MPV
+    void volumeMPV(int volume); // change le volume sur MPV
+
 };
 
 #endif // SERVEUR_H
