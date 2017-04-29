@@ -18,7 +18,6 @@ Serveur::Serveur(QObject *parent) : QObject(parent), socketMPV(new QLocalSocket(
     }
 
     loadAndPlayMPV("/home/zatteo/Music/Augenbling Respect.mp3");
-    volumeMPV(100);
 }
 
 Serveur::~Serveur() {
@@ -82,6 +81,27 @@ void Serveur::volumeMPV(int volume)
     commandeTemporaireMPV.append("set_property"); // nom de la commande
     commandeTemporaireMPV.append("volume"); // argument(s)
     commandeTemporaireMPV.append(volume);
+
+    commandeMPV["command"] = commandeTemporaireMPV;
+
+    QByteArray bytes = QJsonDocument(commandeMPV).toJson(QJsonDocument::Compact) + "\n";
+    if(socketMPV != NULL) {
+      socketMPV->write(bytes.data(), bytes.length());
+    }
+}
+
+/* mute le volume sur MPV
+ * bool mute
+ */
+void Serveur::muteMPV(bool mute)
+{
+    QJsonObject commandeMPV; // objet qui contient la commande
+
+    // on construit la commande
+    QJsonArray commandeTemporaireMPV;
+    commandeTemporaireMPV.append("set_property"); // nom de la commande
+    commandeTemporaireMPV.append("mute"); // argument(s)
+    commandeTemporaireMPV.append(mute);
 
     commandeMPV["command"] = commandeTemporaireMPV;
 

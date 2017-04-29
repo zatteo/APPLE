@@ -20,6 +20,7 @@ private:
     void loadAndPlayMPV(QString nomDuFichier); // charge un fichier et lance la lecture sur MPV
     void playMPV(bool play); // met en play/pause la lecture sur MPV
     void volumeMPV(int volume); // change le volume sur MPV
+    void muteMPV(bool mute); // mute le volume sur MPV
 
 };
 
