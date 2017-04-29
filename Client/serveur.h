@@ -21,6 +21,7 @@ private:
     void playMPV(bool play); // met en play/pause la lecture sur MPV
     void volumeMPV(int volume); // change le volume sur MPV
     void muteMPV(bool mute); // mute le volume sur MPV
+    void positionMPV(int position); // change la position de la musique sur MPV
 
 };
 

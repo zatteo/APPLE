@@ -18,6 +18,7 @@ Serveur::Serveur(QObject *parent) : QObject(parent), socketMPV(new QLocalSocket(
     }
 
     loadAndPlayMPV("/home/zatteo/Music/Augenbling Respect.mp3");
+    positionMPV(50);
 }
 
 Serveur::~Serveur() {
@@ -25,7 +26,7 @@ Serveur::~Serveur() {
 }
 
 /* charge un fichier et lance la lecture sur MPV
- * nomDuFichier : nom du fichier à charger sur MPV
+ * nomDuFichier
  */
 void Serveur::loadAndPlayMPV(QString nomDuFichier){
     QJsonObject commandeMPV; // objet qui contient la commande
@@ -44,7 +45,7 @@ void Serveur::loadAndPlayMPV(QString nomDuFichier){
 }
 
 /* met en play/pause la lecture sur MPV
- * bool play : play = true, pause = false
+ * bool play
  */
 void Serveur::playMPV(bool play)
 {
@@ -65,7 +66,7 @@ void Serveur::playMPV(bool play)
 }
 
 /* change le volume sur MPV
- * int volume : nouveau volume 0 < volume < 100
+ * int volume : 0 < volume < 100
  */
 void Serveur::volumeMPV(int volume)
 {
@@ -102,6 +103,29 @@ void Serveur::muteMPV(bool mute)
     commandeTemporaireMPV.append("set_property"); // nom de la commande
     commandeTemporaireMPV.append("mute"); // argument(s)
     commandeTemporaireMPV.append(mute);
+
+    commandeMPV["command"] = commandeTemporaireMPV;
+
+    QByteArray bytes = QJsonDocument(commandeMPV).toJson(QJsonDocument::Compact) + "\n";
+    if(socketMPV != NULL) {
+      socketMPV->write(bytes.data(), bytes.length());
+    }
+}
+
+/* change la position de la musique sur MPV
+ * int position : en seconde
+ */
+void Serveur::positionMPV(int position)
+{
+    QString positionFormatee = "+" + QString::number(position);
+
+    QJsonObject commandeMPV; // objet qui contient la commande
+
+    // on construit la commande
+    QJsonArray commandeTemporaireMPV;
+    commandeTemporaireMPV.append("set_property"); // nom de la commande
+    commandeTemporaireMPV.append("start"); // argument(s)
+    commandeTemporaireMPV.append(positionFormatee);
 
     commandeMPV["command"] = commandeTemporaireMPV;
 
