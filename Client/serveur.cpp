@@ -30,7 +30,6 @@ void Serveur::connectMPV(QString adresse)
 
     // test
     loadAndPlayMPV("/home/zatteo/Music/Augenbling Respect.mp3");
-    setPositionMPV(50);
 }
 
 Serveur::~Serveur() {
@@ -94,6 +93,8 @@ void Serveur::setPositionMPV(int position)
     sendToMPV(commandeMPV);
 }
 
+/* lecture du socket et action nécessaire
+ */
 void Serveur::readSocket()
 {
     while (socketMPV->canReadLine()) {
@@ -135,12 +136,15 @@ void Serveur::sendToMPV(QJsonObject json)
  */
 void Serveur::getCurrentStateMPV()
 {
-
+    // TODO : dépend de la machine à état
 }
 
 /* inscription aux changements d'états de MPV
 */
 void Serveur::subscribeChangingStateMPV()
 {
-
+    sendToMPV(buildACommandForMPV({"observe_property", 1, "pause"})); // play
+    sendToMPV(buildACommandForMPV({"observe_property", 1, "volume"})); // volume
+    sendToMPV(buildACommandForMPV({"observe_property", 1, "mute"})); // mute
+    sendToMPV(buildACommandForMPV({"observe_property", 1, "start"})); // position
 }
