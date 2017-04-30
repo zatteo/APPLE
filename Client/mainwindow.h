@@ -1,12 +1,14 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
 #include "serveur.h"
+#include <QMainWindow>
 
 namespace Ui {
-class MainWindow;
+    class MainWindow;
 }
+
+class Serveur;
 
 class MainWindow : public QMainWindow
 {
@@ -15,6 +17,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    void setMainWindow(MainWindow *window); // récupére la MainWindow
 
 private slots:
 
@@ -26,7 +29,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    Serveur s;
+    Serveur *s;
 };
 
 #endif // MAINWINDOW_H

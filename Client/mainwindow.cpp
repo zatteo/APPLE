@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "serveur.h"
 
 int play=0; //pause = 0
 int mute=1; //mute = 0
@@ -9,7 +10,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    s.connectMPV("/tmp/mpv-socket");
+    s = new Serveur();
+    s->connectMPV("/tmp/mpv-socket");
 }
 
 MainWindow::~MainWindow()
@@ -33,7 +35,7 @@ void MainWindow::on_play_2_released()
         play= 1;
         QPixmap pixmap("../ressources/play.png");
         QIcon ButtonIcon(pixmap);
-        ui->play_2->setIcon(ButtonIcon);
+        ui->play_2->setIcon(ButtonIcon);        
     }
     else {
         play= 0;
@@ -57,4 +59,11 @@ void MainWindow::on_sound_2_released()
         QIcon ButtonIcon(pixmap);
         ui->sound_2->setIcon(ButtonIcon);
     }
+}
+
+/* récupére la MainWindow
+ */
+void MainWindow::setMainWindow(MainWindow *window)
+{
+    s->setMainWindow(window);
 }
