@@ -5,6 +5,10 @@
 #include <QObject>
 #include <QLocalServer>
 #include <QLocalSocket>
+#include <QStateMachine>
+#include <QState>
+#include <QHistoryState>
+#include <QFinalState>
 
 class MainWindow;
 
