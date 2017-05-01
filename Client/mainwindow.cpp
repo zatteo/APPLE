@@ -10,27 +10,28 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     etat =new QStateMachine(this);
-   /* start= new QState(etat);*/
+    start= new QState(etat);
     play= new QState(etat);
     pause= new QState(etat);
     avance_rapide= new QState(etat);
     retour_rapide= new QState(etat);
 
-   /* start->addTransition(this, SIGNAL(SPlay()), play);
-    start->addTransition(this, SIGNAL(SPlay()), avance_rapide);
-    start->addTransition(this, SIGNAL(SPlay()), retour_rapide);*/
+    start->addTransition(this, SIGNAL(SPlay()), play);
 
-    play->addTransition(ui->next_2, SIGNAL(clicked()), avance_rapide);
-    play->addTransition(ui->previous_2, SIGNAL(clicked()), retour_rapide);
+    play->addTransition(ui->next_2, SIGNAL(pressed()), avance_rapide);
+    play->addTransition(ui->previous_2, SIGNAL(pressed()), retour_rapide);
     play->addTransition(ui->play_2, SIGNAL(clicked()), pause);
 
     avance_rapide->addTransition(ui->next_2, SIGNAL(released()), play);
     retour_rapide->addTransition(ui->previous_2, SIGNAL(released()), play);
-    pause->addTransition(ui->next_2, SIGNAL(clicked()), play);
+    pause->addTransition(ui->play_2, SIGNAL(clicked()), play);
 
     QObject::connect(start, SIGNAL(entered()), this, SLOT(getInfo()));
     QObject::connect(play, SIGNAL(entered()), this, SLOT(FPause()));
     QObject::connect(pause, SIGNAL(entered()), this, SLOT(FPlay()));
+    FPause();
+    etat->setInitialState(play);
+    etat->start();
 
     s = new Serveur();
     s->connectMPV("/tmp/mpv-socket");

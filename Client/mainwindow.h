@@ -36,6 +36,9 @@ private:
     QState * avance_rapide;
     QState * retour_rapide;
     QState * start;
+
+signals:
+    void SPlay();
 };
 
 #endif // MAINWINDOW_H
