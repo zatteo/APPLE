@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QLocalServer>
 #include <QLocalSocket>
+#include <QJsonObject>
+#include <QJsonArray>
 
 class ServeurCentral: public QObject
 {
@@ -21,11 +23,15 @@ private slots:
     void clientDisconnected();
 
 private:
+    QJsonObject songs; // liste des morceaux
+    QJsonObject playlists; // liste des playlists
+    QJsonObject radios; // liste des radios
     QLocalServer *serveurClient = NULL; // le serveur
     QList<QLocalSocket *> socketsClients; // la liste des clients
-    QLocalSocket *socketMPV = NULL; // MPV
+    QLocalSocket *socketMPV = NULL;
     QJsonObject buildACommand(QJsonArray arguments); // construit une commande JSON
     void send(QLocalSocket *socket, QJsonObject json); // envoie un objet JSON
-};
+    void songRequested(QString title);
+}
 
 #endif // SERVEURCENTRAL_H

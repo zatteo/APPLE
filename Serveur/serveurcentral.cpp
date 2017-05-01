@@ -78,7 +78,31 @@ void ServeurCentral::readSocketClient()
 
         qDebug() << retourClient << "retransmis à MPV.";
 
-        send(socketMPV, retourClient);
+        if(retourClient["event"] == "request")
+        {
+            // on renvoie la réponse au client qui demande des informations
+            if(retourClient["name"] == "songs")
+            {
+                send(socket, songs);
+            }
+            else if(retourClient["name"] == "playlists")
+            {
+                send(socket, playlists);
+            }
+            else if(retourClient["name"] == "radios")
+            {
+                send(socket, radios);
+            }
+            else if(retourClient["name"] == "song")
+            {
+                songRequested(retourClient["title"].toString());
+            }
+        }
+        else
+        {
+            // on retransmet directement à MPV
+            send(socketMPV, retourClient);
+        }
     }
 }
 
@@ -103,6 +127,11 @@ void ServeurCentral::readSocketMPV()
             send(socketsClients.at(i), retourMPV);
         }
     }
+}
+
+void songRequested(QString title)
+{
+    // taglib
 }
 
 /* construit une commande JSON

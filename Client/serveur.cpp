@@ -133,6 +133,42 @@ void Serveur::send(QJsonObject json)
     }
 }
 
+/* fonction pour simplifier la demande des morceaux
+ */
+void Serveur::requestAllSongs()
+{
+    QJsonObject commandeMPV;
+
+    commandeMPV["event"] = "request";
+    commandeMPV["name"] = "songs";
+
+    send(commandeMPV);
+}
+
+/* fonction pour simplifier la demande des playlists
+ */
+void Serveur::requestAllPlaylists()
+{
+    QJsonObject commandeMPV;
+
+    commandeMPV["event"] = "request";
+    commandeMPV["name"] = "playlists";
+
+    send(commandeMPV);
+}
+
+/* fonction pour simplifier la demande des morceaux
+ */
+void Serveur::requestAllRadios()
+{
+    QJsonObject commandeMPV;
+
+    commandeMPV["event"] = "request";
+    commandeMPV["name"] = "radios";
+
+    send(commandeMPV);
+}
+
 /* récupèration de l'état actuel de MPV
  */
 void Serveur::getCurrentStateMPV()
