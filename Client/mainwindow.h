@@ -5,6 +5,7 @@
 #include "automate.h"
 #include <QMainWindow>
 #include <QListWidgetItem>
+#include <QJsonObject>
 
 namespace Ui {
     class MainWindow;
@@ -28,6 +29,7 @@ private slots:
     void FPause();
     void Beginning();
     void Update(QListWidgetItem *item);
+    void UpdateInt(QJsonObject json);
 
 private:
     Ui::MainWindow *ui;
