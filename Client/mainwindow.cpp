@@ -15,23 +15,41 @@ MainWindow::MainWindow(QWidget *parent) :
     pause= new QState(etat);
     avance_rapide= new QState(etat);
     retour_rapide= new QState(etat);
+    next= new QState(etat);
+    previous= new QState(etat);
 
     start->addTransition(this, SIGNAL(SPlay()), play);
+    start->addTransition(ui->liste_musique, SIGNAL(doubleClicked(QModelIndex)), play);
 
     play->addTransition(ui->next_2, SIGNAL(pressed()), avance_rapide);
     play->addTransition(ui->previous_2, SIGNAL(pressed()), retour_rapide);
     play->addTransition(ui->play_2, SIGNAL(clicked()), pause);
+    /*play->addTransition(ui->next_2, SIGNAL(clicked()), next);
+    play->addTransition(ui->previous_2, SIGNAL(clicked()), previous);*/
+
 
     avance_rapide->addTransition(ui->next_2, SIGNAL(released()), play);
     retour_rapide->addTransition(ui->previous_2, SIGNAL(released()), play);
     pause->addTransition(ui->play_2, SIGNAL(clicked()), play);
 
-    QObject::connect(start, SIGNAL(entered()), this, SLOT(getInfo()));
+    // QObject::connect(start, SIGNAL(entered()), this, SLOT(getInfo()));
     QObject::connect(play, SIGNAL(entered()), this, SLOT(FPause()));
     QObject::connect(pause, SIGNAL(entered()), this, SLOT(FPlay()));
+    QObject::connect(start, SIGNAL(exited()), this, SLOT(Beginning()));
+    QObject::connect(ui->liste_musique, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(Update(QListWidgetItem*)));
+
     FPause();
-    etat->setInitialState(play);
+    etat->setInitialState(start);
     etat->start();
+
+    ui->play_2->hide();
+    ui->artiste_2->hide();
+    ui->Titre_2->hide();
+    ui->next_2->hide();
+    ui->previous_2->hide();
+    ui->lecture->hide();
+    ui->current->hide();
+    ui->end->hide();
 
     s = new Serveur();
     s->connectMPV("/tmp/mpv-socket");
@@ -64,6 +82,25 @@ void MainWindow::FPause()
     QPixmap pixmap("../ressources/pause.png");
     QIcon ButtonIcon(pixmap);
     ui->play_2->setIcon(ButtonIcon);
+}
+
+void MainWindow::Beginning()
+{
+    ui->play_2->show();
+    ui->artiste_2->show();
+    ui->Titre_2->show();
+    ui->next_2->show();
+    ui->previous_2->show();
+    ui->lecture->show();
+    ui->current->show();
+    ui->end->show();
+}
+
+void MainWindow::Update(QListWidgetItem * item)
+{
+    ui->Titre_2->setText(item->text());
+    ui->lecture->setValue(0);
+    ui->artiste_2->hide();
 }
 
 void MainWindow::on_sound_2_released()

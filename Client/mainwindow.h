@@ -4,6 +4,7 @@
 #include "serveur.h"
 #include "automate.h"
 #include <QMainWindow>
+#include <QListWidgetItem>
 
 namespace Ui {
     class MainWindow;
@@ -25,6 +26,8 @@ private slots:
     void on_sound_2_released();
     void FPlay();
     void FPause();
+    void Beginning();
+    void Update(QListWidgetItem *item);
 
 private:
     Ui::MainWindow *ui;
@@ -36,6 +39,8 @@ private:
     QState * avance_rapide;
     QState * retour_rapide;
     QState * start;
+    QState * next;
+    QState * previous;
 
 signals:
     void SPlay();
