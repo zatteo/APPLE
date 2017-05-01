@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-int play=0; //pause = 0
 int mute=1; //mute = 0
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -10,6 +9,31 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     s.connectMPV("/tmp/mpv-socket");
+
+    etat =new QStateMachine(this);
+   /* start= new QState(etat);*/
+    play= new QState(etat);
+    pause= new QState(etat);
+    avance_rapide= new QState(etat);
+    retour_rapide= new QState(etat);
+
+   /* start->addTransition(this, SIGNAL(SPlay()), play);
+    start->addTransition(this, SIGNAL(SPlay()), avance_rapide);
+    start->addTransition(this, SIGNAL(SPlay()), retour_rapide);*/
+
+    play->addTransition(ui->next_2, SIGNAL(clicked()), avance_rapide);
+    play->addTransition(ui->previous_2, SIGNAL(clicked()), retour_rapide);
+    play->addTransition(ui->play_2, SIGNAL(clicked()), pause);
+
+    avance_rapide->addTransition(ui->next_2, SIGNAL(released()), play);
+    retour_rapide->addTransition(ui->previous_2, SIGNAL(released()), play);
+    pause->addTransition(ui->next_2, SIGNAL(clicked()), play);
+
+    QObject::connect(start, SIGNAL(entered()), this, SLOT(getInfo()));
+    QObject::connect(play, SIGNAL(entered()), this, SLOT(FPause()));
+    QObject::connect(pause, SIGNAL(entered()), this, SLOT(FPlay()));
+
+
 }
 
 MainWindow::~MainWindow()
@@ -27,20 +51,18 @@ void MainWindow::on_lecture_valueChanged(int value)
         ui->current->setText(QString::number(min) + ":" + QString::number(sec));
 }
 
-void MainWindow::on_play_2_released()
+void MainWindow::FPlay()
 {
-    if(play == 0){
-        play= 1;
-        QPixmap pixmap("../ressources/play.png");
-        QIcon ButtonIcon(pixmap);
-        ui->play_2->setIcon(ButtonIcon);
-    }
-    else {
-        play= 0;
-        QPixmap pixmap("../ressources/pause.png");
-        QIcon ButtonIcon(pixmap);
-        ui->play_2->setIcon(ButtonIcon);
-    }
+    QPixmap pixmap("../ressources/play.png");
+    QIcon ButtonIcon(pixmap);
+    ui->play_2->setIcon(ButtonIcon);
+}
+
+void MainWindow::FPause()
+{
+    QPixmap pixmap("../ressources/pause.png");
+    QIcon ButtonIcon(pixmap);
+    ui->play_2->setIcon(ButtonIcon);
 }
 
 void MainWindow::on_sound_2_released()
@@ -58,3 +80,5 @@ void MainWindow::on_sound_2_released()
         ui->sound_2->setIcon(ButtonIcon);
     }
 }
+
+//une fonction set play, set volume, set musique

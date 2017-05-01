@@ -33,7 +33,6 @@
      <string notr="true">background-image: url(&quot;../ressources/fond.jpg&quot;);
 </string>
     </property>
-    <zorder>barre_groupe</zorder>
    </widget>
    <widget class="QWidget" name="barre_groupe" native="true">
     <property name="geometry">
@@ -48,7 +47,7 @@
      <bool>false</bool>
     </property>
     <property name="styleSheet">
-     <string notr="true"/>
+     <string notr="true">background-color: transparent;</string>
     </property>
     <widget class="QListWidget" name="liste_groupe">
      <property name="geometry">
@@ -60,7 +59,8 @@
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true">border: none;</string>
+      <string notr="true">border: none;
+background-color: rgba(180, 180, 180,150);</string>
      </property>
     </widget>
    </widget>
@@ -77,7 +77,7 @@
      <bool>false</bool>
     </property>
     <property name="styleSheet">
-     <string notr="true"/>
+     <string notr="true">background-color: transparent;</string>
     </property>
     <widget class="QListWidget" name="liste_musique">
      <property name="geometry">
@@ -89,11 +89,54 @@
       </rect>
      </property>
      <property name="styleSheet">
-      <string notr="true">border: none;</string>
+      <string notr="true">border: none;
+background-color: rgba(180, 180, 180,150);</string>
      </property>
      <property name="sortingEnabled">
       <bool>true</bool>
      </property>
+     <item>
+      <property name="text">
+       <string>Burning bright</string>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>15</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="background">
+       <brush brushstyle="NoBrush">
+        <color alpha="255">
+         <red>186</red>
+         <green>189</green>
+         <blue>182</blue>
+        </color>
+       </brush>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Wesh Alors</string>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>15</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="background">
+       <brush brushstyle="NoBrush">
+        <color alpha="255">
+         <red>186</red>
+         <green>189</green>
+         <blue>182</blue>
+        </color>
+       </brush>
+      </property>
+     </item>
     </widget>
    </widget>
    <widget class="QWidget" name="barre_play" native="true">

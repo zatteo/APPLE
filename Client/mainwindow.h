@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "serveur.h"
+#include "automate.h"
 
 namespace Ui {
 class MainWindow;
@@ -17,16 +18,21 @@ public:
     ~MainWindow();
 
 private slots:
-
     void on_lecture_valueChanged(int value);
-
-    void on_play_2_released();
-
     void on_sound_2_released();
+    void FPlay();
+    void FPause();
 
 private:
     Ui::MainWindow *ui;
     Serveur s;
+    QStateMachine * etat;
+
+    QState * play;
+    QState * pause;
+    QState * avance_rapide;
+    QState * retour_rapide;
+    QState * start;
 };
 
 #endif // MAINWINDOW_H
