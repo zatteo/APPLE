@@ -51,6 +51,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->current->setDisabled(true);
     ui->end->setDisabled(true);
 
+    ui->liste_musique->clear();
+    add_liste_musique("TMCP");
+
     s = new Serveur();
     s->connect("/tmp/socketClient");
 }
@@ -119,6 +122,15 @@ void MainWindow::UpdateInt(QJsonObject json)
             }
         }
     }
+}
+
+void MainWindow::add_liste_musique(QString nom)
+{
+    ui->liste_musique->addItem(nom);
+}
+void MainWindow::add_liste_groupe(QString nom)
+{
+    ui->liste_groupe->addItem(nom);
 }
 
 void MainWindow::on_sound_2_released()
