@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     s = new Serveur();
-    s->connectMPV("/tmp/mpv-socket");
+    s->connect("/tmp/socketClient");
 }
 
 MainWindow::~MainWindow()
