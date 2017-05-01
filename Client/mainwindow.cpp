@@ -24,8 +24,8 @@ MainWindow::MainWindow(QWidget *parent) :
     play->addTransition(ui->next_2, SIGNAL(pressed()), avance_rapide);
     play->addTransition(ui->previous_2, SIGNAL(pressed()), retour_rapide);
     play->addTransition(ui->play_2, SIGNAL(clicked()), pause);
-    /*play->addTransition(ui->next_2, SIGNAL(clicked()), next);
-    play->addTransition(ui->previous_2, SIGNAL(clicked()), previous);*/
+    play->addTransition(ui->next_2, SIGNAL(clicked()), next);
+    play->addTransition(ui->previous_2, SIGNAL(clicked()), previous);
 
 
     avance_rapide->addTransition(ui->next_2, SIGNAL(released()), play);
@@ -42,14 +42,17 @@ MainWindow::MainWindow(QWidget *parent) :
     etat->setInitialState(start);
     etat->start();
 
-    ui->play_2->hide();
+    ui->play_2->setDisabled(true);
     ui->artiste_2->hide();
     ui->Titre_2->hide();
-    ui->next_2->hide();
-    ui->previous_2->hide();
-    ui->lecture->hide();
-    ui->current->hide();
-    ui->end->hide();
+    ui->next_2->setDisabled(true);
+    ui->previous_2->setDisabled(true);
+    ui->lecture->setDisabled(true);
+    ui->current->setDisabled(true);
+    ui->end->setDisabled(true);
+
+    ui->liste_musique->clear();
+    add_liste_musique("TMCP");
 
     s = new Serveur();
     s->connect("/tmp/socketClient");
@@ -86,14 +89,14 @@ void MainWindow::FPause()
 
 void MainWindow::Beginning()
 {
-    ui->play_2->show();
+    ui->play_2->setDisabled(false);
     ui->artiste_2->show();
     ui->Titre_2->show();
-    ui->next_2->show();
-    ui->previous_2->show();
-    ui->lecture->show();
-    ui->current->show();
-    ui->end->show();
+    ui->next_2->setDisabled(false);
+    ui->previous_2->setDisabled(false);
+    ui->lecture->setDisabled(false);
+    ui->current->setDisabled(false);
+    ui->end->setDisabled(false);
 }
 
 void MainWindow::Update(QListWidgetItem * item)
@@ -101,6 +104,33 @@ void MainWindow::Update(QListWidgetItem * item)
     ui->Titre_2->setText(item->text());
     ui->lecture->setValue(0);
     ui->artiste_2->hide();
+}
+
+void MainWindow::UpdateInt(QJsonObject json)
+{
+    if(json["event"] == "property-changed"){
+        if(json["name"] == "volume"){
+            int valeur= json.value("data").toInt();
+            ui->volume->setValue(valeur);
+        }
+        else if(json["name"] == "mute"){
+            if(json["data"] == true && mute == 0){
+                on_sound_2_released();
+            }
+            else if(json["data"] == false && mute == 1){
+                on_sound_2_released();
+            }
+        }
+    }
+}
+
+void MainWindow::add_liste_musique(QString nom)
+{
+    ui->liste_musique->addItem(nom);
+}
+void MainWindow::add_liste_groupe(QString nom)
+{
+    ui->liste_groupe->addItem(nom);
 }
 
 void MainWindow::on_sound_2_released()

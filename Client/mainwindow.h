@@ -5,6 +5,7 @@
 #include "automate.h"
 #include <QMainWindow>
 #include <QListWidgetItem>
+#include <QJsonObject>
 
 namespace Ui {
     class MainWindow;
@@ -28,6 +29,9 @@ private slots:
     void FPause();
     void Beginning();
     void Update(QListWidgetItem *item);
+    void UpdateInt(QJsonObject json);
+    void add_liste_musique(QString nom);
+    void add_liste_groupe(QString nom);
 
 private:
     Ui::MainWindow *ui;
