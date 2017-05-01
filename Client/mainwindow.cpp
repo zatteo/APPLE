@@ -52,7 +52,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->end->setDisabled(true);
 
     s = new Serveur();
-    s->connectMPV("/tmp/mpv-socket");
+    s->connect("/tmp/socketClient");
 }
 
 MainWindow::~MainWindow()
