@@ -148,3 +148,10 @@ void Serveur::subscribeChangingStateMPV()
     sendToMPV(buildACommandForMPV({"observe_property", 1, "mute"})); // mute
     sendToMPV(buildACommandForMPV({"observe_property", 1, "start"})); // position
 }
+
+/* récupére la MainWindow
+ */
+void Serveur::setMainWindow(MainWindow *window)
+{
+    w = window;
+}

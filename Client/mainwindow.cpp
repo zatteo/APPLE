@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "serveur.h"
 
 int mute=1; //mute = 0
 
@@ -8,8 +9,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    s.connectMPV("/tmp/mpv-socket");
-
     etat =new QStateMachine(this);
    /* start= new QState(etat);*/
     play= new QState(etat);
@@ -33,7 +32,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(play, SIGNAL(entered()), this, SLOT(FPause()));
     QObject::connect(pause, SIGNAL(entered()), this, SLOT(FPlay()));
 
-
+    s = new Serveur();
+    s->connectMPV("/tmp/mpv-socket");
 }
 
 MainWindow::~MainWindow()
@@ -81,4 +81,9 @@ void MainWindow::on_sound_2_released()
     }
 }
 
-//une fonction set play, set volume, set musique
+/* récupére la MainWindow
+ */
+void MainWindow::setMainWindow(MainWindow *window)
+{
+    s->setMainWindow(window);
+}
