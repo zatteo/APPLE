@@ -119,6 +119,14 @@ void ServeurCentral::readSocketClient()
         }
         else
         {
+            if(retourClient["command"].isArray())
+            {
+                if(retourClient["command"].toArray().at(0).toString() == "loadfile");
+                {
+                    retourClient["command"].toArray().at(1) = songsPath + "/" + retourClient["command"].toArray().at(1).toString();
+                }
+            }
+
             // on retransmet directement à MPV
             send(socketMPV, retourClient);
         }

@@ -25,3 +25,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 HEADERS += \
     serveurcentral.h
+
+INCLUDEPATH += ../includes
+LIBS += -L/libs -ltag
