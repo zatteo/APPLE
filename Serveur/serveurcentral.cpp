@@ -3,9 +3,13 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QDir>
 
 ServeurCentral::ServeurCentral(QObject *parent) : QObject(parent), socketMPV(new QLocalSocket(this))
 {
+    // chargements des morceaux disponibles
+    loadLocalSongs();
+
     serveurClient = new QLocalServer();
     serveurClient->setSocketOptions(QLocalServer::UserAccessOption);
     serveurClient->listen("/tmp/socketClient");
@@ -40,7 +44,7 @@ void ServeurCentral::clientConnected()
     QObject::connect(socket, SIGNAL(readyRead()), this, SLOT(readSocketClient()));
     QObject::connect(socket, SIGNAL(disconnected()), this, SLOT(clientDisconnected()));
 
-    qDebug() << "Un client s'est connecté";
+    qDebug() << "Un client s'est connecté.";
 }
 
 void ServeurCentral::clientDisconnected()
@@ -54,7 +58,7 @@ void ServeurCentral::clientDisconnected()
 
     socket->deleteLater();
 
-    qDebug() << "Un client s'est déconnecté";
+    qDebug() << "Un client s'est déconnecté.";
 }
 
 ServeurCentral::~ServeurCentral() {
@@ -68,34 +72,49 @@ void ServeurCentral::readSocketClient()
 {
     QLocalSocket *socket = qobject_cast<QLocalSocket *>(sender());
 
-    qDebug() << "Message reçu du client.";
-
     while (socket->canReadLine()) {
         QByteArray line = socket->readLine().trimmed();
 
         QJsonParseError error;
-        QJsonObject retourClient = QJsonDocument::fromJson(line, &error).object();
 
-        qDebug() << retourClient << "retransmis à MPV.";
+        QJsonObject retourClient = QJsonDocument::fromJson(line, &error).object();
 
         if(retourClient["event"] == "request")
         {
             // on renvoie la réponse au client qui demande des informations
             if(retourClient["name"] == "songs")
             {
-                send(socket, songs);
+                // on formate la requête de réponse
+                QJsonObject songsParsed;
+                songsParsed["event"] = "response";
+                songsParsed["name"] = "songs";
+                songsParsed["data"] = songs;
+
+                send(socket, songsParsed);
             }
             else if(retourClient["name"] == "playlists")
             {
-                send(socket, playlists);
+                // on formate la requête de réponse
+                QJsonObject playlistsParsed;
+                playlistsParsed["event"] = "response";
+                playlistsParsed["name"] = "playlists";
+                playlistsParsed["data"] = playlists;
+
+                send(socket, playlistsParsed);
             }
             else if(retourClient["name"] == "radios")
             {
-                send(socket, radios);
+                // on formate la requête de réponse
+                QJsonObject radiosParsed;
+                radiosParsed["event"] = "response";
+                radiosParsed["name"] = "radios";
+                radiosParsed["data"] = radios;
+
+                send(socket, radiosParsed);
             }
             else if(retourClient["name"] == "song")
             {
-                songRequested(retourClient["title"].toString());
+                songRequested(socket, retourClient["title"].toString());
             }
         }
         else
@@ -110,17 +129,12 @@ void ServeurCentral::readSocketClient()
  */
 void ServeurCentral::readSocketMPV()
 {
-    qDebug() << "Message reçu de MPV.";
-
     while (socketMPV->canReadLine()) {
         QByteArray line = socketMPV->readLine().trimmed();
 
         QJsonParseError error;
         QJsonObject retourMPV = QJsonDocument::fromJson(line, &error).object();
-        qDebug() << retourMPV;
-
-
-        qDebug() << retourMPV << "retransmis au client.";
+        qDebug() << "MPV :" << retourMPV;
 
         for(int i = 0; i < socketsClients.size(); i++)
         {
@@ -129,9 +143,37 @@ void ServeurCentral::readSocketMPV()
     }
 }
 
-void songRequested(QString title)
+void ServeurCentral::songRequested(QLocalSocket *socket, QString title)
 {
-    // taglib
+    // on vérifie si le morceau est dans la liste
+    for(int i = 0; i < songs.size(); i++)
+    {
+
+        QJsonObject currentSong = songs.at(i).toObject();
+
+        if(currentSong.value("title").toString() == title)
+        {
+            // on ne connaît pas les métadonnées du morceau
+            if(currentSong.value("taglib") == QJsonValue::Undefined )
+            {
+                // on récupère les métadonnées
+
+                // on envoie les métadonnées
+                send(socket, currentSong);
+
+                // on lance la musique
+                send(socketMPV, buildACommand({"loadfile", songsPath + "/" + currentSong.value("title").toString()}));
+            }
+            else // on connaît les métadonnées du morceau
+            {
+                // on envoie les métadonnées
+                send(socket, currentSong);
+
+                // on lance la musique
+                send(socketMPV, buildACommand({"loadfile", songsPath + "/" + currentSong.value("title").toString()}));
+            }
+        }
+    }
 }
 
 /* construit une commande JSON
@@ -154,5 +196,55 @@ void ServeurCentral::send(QLocalSocket *socket, QJsonObject json)
     QByteArray bytes = QJsonDocument(json).toJson(QJsonDocument::Compact) + "\n";
     if(socket != NULL) {
       socket->write(bytes.data(), bytes.length());
+    }
+}
+
+/* charge les morceaux disponibles localement
+ */
+void ServeurCentral::loadLocalSongs()
+{
+    // on récupère les fichiers
+    QStringList list;
+
+    if(QDir(QDir::home().absolutePath() + "/Music").exists())
+    {
+        list = QDir(QDir::home().absolutePath() + "/Music").entryList();
+        songsPath = QDir::home().absolutePath() + "/Music";
+    }
+    else if(QDir(QDir::home().absolutePath() + "/Musique").exists())
+    {
+        list = QDir(QDir::home().absolutePath() + "/Musique").entryList();
+        songsPath = QDir::home().absolutePath() + "/Musique";
+    }
+
+    // on supprime les fichiers qui ne correspondent pas à des morceaux
+
+    list.removeOne(".");
+    list.removeOne("..");
+
+    for(int i = 0; i < list.size(); i++)
+    {
+        if(isValidSong(list.at(i)))
+        {
+            songs.append(QJsonObject({{"title", list.at(i)}}));
+        }
+    }
+}
+
+/* vérifie si le nom du fichier correspond à une musique
+ */
+bool ServeurCentral::isValidSong(QString song)
+{
+    if(song.endsWith(".mp3"))
+    {
+        return true;
+    }
+    else if(song.endsWith(".m4a"))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
     }
 }
