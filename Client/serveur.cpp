@@ -105,6 +105,7 @@ void Serveur::readSocket()
 
         // ici on a reçu une réponse de MPV
         // -> appeler une fonction update qui met à jour l'interface et l'état du programme
+        w->UpdateInt(retourMPV);
     }
 }
 

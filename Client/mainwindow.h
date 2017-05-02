@@ -21,6 +21,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     void setMainWindow(MainWindow *window); // récupére la MainWindow
+    void UpdateInt(QJsonObject json);
 
 private slots:
     void on_lecture_valueChanged(int value);
@@ -29,7 +30,6 @@ private slots:
     void FPause();
     void Beginning();
     void Update(QListWidgetItem *item);
-    void UpdateInt(QJsonObject json);
     void add_liste_musique(QString nom);
     void add_liste_groupe(QString nom);
 

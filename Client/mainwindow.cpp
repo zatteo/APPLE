@@ -1,6 +1,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "serveur.h"
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QJsonDocument>
 
 int mute=1; //mute = 0
 
@@ -52,10 +55,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->end->setDisabled(true);
 
     ui->liste_musique->clear();
-    add_liste_musique("TMCP");
+    ui->liste_groupe->clear();
+    add_liste_groupe("Toutes les musiques");
 
     s = new Serveur();
     s->connect("/tmp/socketClient");
+    s->requestAllSongs();
 }
 
 MainWindow::~MainWindow()
@@ -104,6 +109,7 @@ void MainWindow::Update(QListWidgetItem * item)
     ui->Titre_2->setText(item->text());
     ui->lecture->setValue(0);
     ui->artiste_2->hide();
+    void loadAndPlayMPV(item->text()); // charge un fichier et lance la lecture sur le serveur central
 }
 
 void MainWindow::UpdateInt(QJsonObject json)
@@ -119,6 +125,15 @@ void MainWindow::UpdateInt(QJsonObject json)
             }
             else if(json["data"] == false && mute == 1){
                 on_sound_2_released();
+            }
+        }
+    }
+    if(json["event"] == "response"){
+        if(json["name"] == "songs"){
+            int i;
+            QJsonArray tmp= json["data"].toArray();
+            for(i=0; i< tmp.size(); i++){
+                add_liste_musique(tmp.at(i).toObject().value("title").toString());
             }
         }
     }
