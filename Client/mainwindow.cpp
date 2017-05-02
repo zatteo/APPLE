@@ -41,7 +41,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(start, SIGNAL(exited()), this, SLOT(Beginning()));
     QObject::connect(ui->liste_musique, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(Update(QListWidgetItem*)));
 
-    FPause();
     etat->setInitialState(start);
     etat->start();
 
@@ -80,6 +79,7 @@ void MainWindow::on_lecture_valueChanged(int value)
 
 void MainWindow::FPlay()
 {
+    s->playMPV(false);
     QPixmap pixmap("../ressources/play.png");
     QIcon ButtonIcon(pixmap);
     ui->play_2->setIcon(ButtonIcon);
@@ -87,6 +87,7 @@ void MainWindow::FPlay()
 
 void MainWindow::FPause()
 {
+    s->playMPV(true);
     QPixmap pixmap("../ressources/pause.png");
     QIcon ButtonIcon(pixmap);
     ui->play_2->setIcon(ButtonIcon);
@@ -151,12 +152,14 @@ void MainWindow::add_liste_groupe(QString nom)
 void MainWindow::on_sound_2_released()
 {
     if(mute == 0){
+        s->muteMPV(false);
         mute= 1;
         QPixmap pixmap("../ressources/sound.png");
         QIcon ButtonIcon(pixmap);
         ui->sound_2->setIcon(ButtonIcon);
     }
     else {
+        s->muteMPV(true);
         mute= 0;
         QPixmap pixmap("../ressources/nosound.png");
         QIcon ButtonIcon(pixmap);
@@ -169,4 +172,9 @@ void MainWindow::on_sound_2_released()
 void MainWindow::setMainWindow(MainWindow *window)
 {
     s->setMainWindow(window);
+}
+
+void MainWindow::on_volume_valueChanged(int value)
+{
+    s->setVolumeMPV(value);
 }
