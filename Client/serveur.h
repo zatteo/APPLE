@@ -26,6 +26,9 @@ public:
     void muteMPV(bool mute); // mute le volume sur le serveur central
     void setPositionMPV(int position); // change la position de la musique sur le serveur central
     void setMainWindow(MainWindow *window); // récupére la MainWindow
+    void requestAllSongs();
+    void requestAllPlaylists();
+    void requestAllRadios();
 
 private slots:
     void readSocket();
@@ -37,9 +40,6 @@ private:
     void getCurrentStateMPV(); // récupèration de l'état actuel du serveur central
     void subscribeChangingStateMPV(); // inscription aux changements d'états du serveur central
     MainWindow *w;
-    void requestAllSongs();
-    void requestAllPlaylists();
-    void requestAllRadios();
 };
 
 #endif // SERVEUR_H
