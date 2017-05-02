@@ -78,6 +78,7 @@ void ServeurCentral::readSocketClient()
         QJsonParseError error;
 
         QJsonObject retourClient = QJsonDocument::fromJson(line, &error).object();
+        qDebug() << "client :" << retourClient;
 
         if(retourClient["event"] == "request")
         {
@@ -89,6 +90,8 @@ void ServeurCentral::readSocketClient()
                 songsParsed["event"] = "response";
                 songsParsed["name"] = "songs";
                 songsParsed["data"] = songs;
+
+                qDebug() << songsParsed;
 
                 send(socket, songsParsed);
             }
