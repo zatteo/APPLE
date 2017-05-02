@@ -26,9 +26,6 @@ void Serveur::connect(QString adresse)
 
     // on s'inscrit aux changements d'états pour gérer le multi-utilisateur
     subscribeChangingStateMPV();
-
-    // test
-    loadAndPlayMPV("/home/zatteo/Music/Augenbling Respect.mp3");
 }
 
 Serveur::~Serveur() {
@@ -126,8 +123,6 @@ QJsonObject Serveur::buildACommand(QJsonArray arguments)
  */
 void Serveur::send(QJsonObject json)
 {
-    qDebug() << "Envoi d'un message au serveur central";
-
     QByteArray bytes = QJsonDocument(json).toJson(QJsonDocument::Compact) + "\n";
     if(socket != NULL) {
       socket->write(bytes.data(), bytes.length());

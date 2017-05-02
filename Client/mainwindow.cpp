@@ -109,7 +109,7 @@ void MainWindow::Update(QListWidgetItem * item)
     ui->Titre_2->setText(item->text());
     ui->lecture->setValue(0);
     ui->artiste_2->hide();
-    void loadAndPlayMPV(item->text()); // charge un fichier et lance la lecture sur le serveur central
+    s->loadAndPlayMPV(item->text()); // charge un fichier et lance la lecture sur le serveur central
 }
 
 void MainWindow::UpdateInt(QJsonObject json)
