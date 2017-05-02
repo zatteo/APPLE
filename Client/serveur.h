@@ -37,6 +37,9 @@ private:
     void getCurrentStateMPV(); // récupèration de l'état actuel du serveur central
     void subscribeChangingStateMPV(); // inscription aux changements d'états du serveur central
     MainWindow *w;
+    void requestAllSongs();
+    void requestAllPlaylists();
+    void requestAllRadios();
 };
 
 #endif // SERVEUR_H
