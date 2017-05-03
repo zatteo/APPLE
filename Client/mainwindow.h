@@ -33,6 +33,8 @@ private slots:
     void add_liste_musique(QString nom);
     void add_liste_groupe(QString nom);
 
+    void on_volume_valueChanged(int value);
+
 private:
     Ui::MainWindow *ui;
     Serveur * s;
