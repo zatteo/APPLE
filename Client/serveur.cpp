@@ -37,6 +37,13 @@ Serveur::~Serveur() {
  */
 void Serveur::loadAndPlayMPV(QString nomDuFichier)
 {
+    QJsonObject songParsed;
+    songParsed["event"] = "request";
+    songParsed["name"] = "song";
+    songParsed["data"] = nomDuFichier;
+
+    send(songParsed);
+
     QJsonObject commandeMPV = buildACommand({"loadfile", nomDuFichier});
 
     send(commandeMPV);
@@ -181,8 +188,6 @@ void Serveur::subscribeChangingStateMPV()
     send(buildACommand({"observe_property", 1, "mute"})); // mute
     send(buildACommand({"observe_property", 1, "start"})); // position manuelle
     send(buildACommand({"observe_property", 1, "time-pos"}));
-    send(buildACommand({"observe_property", 1, "time-remaining"}));
-
 }
 
 /* récupére la MainWindow

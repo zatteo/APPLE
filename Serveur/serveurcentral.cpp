@@ -2,6 +2,10 @@
 #include "taglib/tag.h"
 #include "taglib/fileref.h"
 #include "taglib/tpropertymap.h"
+#include "taglib/mpegfile.h"
+#include "taglib/id3v2tag.h"
+#include "taglib/id3v2frame.h"
+#include "taglib/attachedpictureframe.h"
 #include <QDebug>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -83,10 +87,10 @@ void ServeurCentral::readSocketClient()
         QJsonObject retourClient = QJsonDocument::fromJson(line, &error).object();
         qDebug() << "client :" << retourClient;
 
-        if(retourClient["event"] == "request")
-        {
+        if(retourClient["event"].toString() == "request")
+        {            
             // on renvoie la réponse au client qui demande des informations
-            if(retourClient["name"] == "songs")
+            if(retourClient["name"].toString() == "songs")
             {
                 // on formate la requête de réponse
                 QJsonObject songsParsed;
@@ -96,7 +100,7 @@ void ServeurCentral::readSocketClient()
 
                 send(socket, songsParsed);
             }
-            else if(retourClient["name"] == "playlists")
+            else if(retourClient["name"].toString() == "playlists")
             {
                 // on formate la requête de réponse
                 QJsonObject playlistsParsed;
@@ -106,7 +110,7 @@ void ServeurCentral::readSocketClient()
 
                 send(socket, playlistsParsed);
             }
-            else if(retourClient["name"] == "radios")
+            else if(retourClient["name"].toString() == "radios")
             {
                 // on formate la requête de réponse
                 QJsonObject radiosParsed;
@@ -116,9 +120,9 @@ void ServeurCentral::readSocketClient()
 
                 send(socket, radiosParsed);
             }
-            else if(retourClient["name"] == "song")
+            else if(retourClient["name"].toString() == "song")
             {
-                songRequested(socket, retourClient["title"].toString());
+                songRequested(socket, retourClient["data"].toString());
             }
         }
         else
@@ -162,16 +166,15 @@ void ServeurCentral::songRequested(QLocalSocket *socket, QString title)
     // on vérifie si le morceau est dans la liste
     for(int i = 0; i < songs.size(); i++)
     {
-
         QJsonObject currentSong = songs.at(i).toObject();
 
-        if(currentSong.value("title").toString() == title)
+        if(currentSong["title"].toString() == title)
         {
             // on construit le chemin local du morceau
             QString newPath = songsPath + "/" + currentSong.value("title").toString();
 
             // on récupère les métadonnées et on les insère dans le morceau
-            if(currentSong.value("taglib") == QJsonValue::Undefined )
+            if(currentSong.value("taglib") == QJsonValue::Undefined)
             {
                 QJsonObject newTags = getTags(newPath);
                 currentSong["taglib"] = newTags;
@@ -270,6 +273,8 @@ bool ServeurCentral::isValidSong(QString song)
 QJsonObject ServeurCentral::getTags(QString fileName)
 {
     QJsonObject newTags;
+
+    // on récupère les tags
     TagLib::FileRef f(fileName.toLatin1().data());
     if(!f.isNull() && f.tag())
     {
@@ -281,6 +286,26 @@ QJsonObject ServeurCentral::getTags(QString fileName)
                 newTags[QString::fromStdString(i->first.to8Bit(true))] = QString::fromStdString(j->to8Bit(true));
             }
         }
+    }
+
+    newTags["duration"] = f.audioProperties()->lengthInSeconds();
+
+    // on récupère la cover
+    if(fileName.endsWith(".mp3"))
+    {
+        TagLib::MPEG::File file(fileName.toLatin1().data());
+        TagLib::ID3v2::Tag *m_tag = file.ID3v2Tag(true);
+        TagLib::ID3v2::FrameList frameList = m_tag->frameList("APIC");
+
+        // s'il y a aucune image, on s'arrête
+        if(frameList.isEmpty())
+        {
+           return newTags;
+        }
+
+        TagLib::ID3v2::AttachedPictureFrame *coverImg = static_cast<TagLib::ID3v2::AttachedPictureFrame *>(frameList.front());
+        newTags["pictureData"] = coverImg->picture().data();
+        newTags["pictureSize"] = (int)coverImg->picture().size();
     }
 
     return newTags;

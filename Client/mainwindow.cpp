@@ -138,7 +138,14 @@ void MainWindow::UpdateInt(QJsonObject json)
             }
         }
         else if(json["name"] == "song"){
-            qDebug() << json["data"];
+            qDebug() << "LA";
+            QJsonObject jsonTmp = json.value("data").toObject().value("taglib").toObject();
+
+//            qDebug() << jsonTmp.value("pictureData").toString().toWCharArray();
+
+            QImage coverQImg;
+//            coverQImg.loadFromData(jsonTmp.value("pictureData").toString().toWCharArray());
+            coverQImg.save("yolo.jpg", 0, 100);
         }
     }
 }
