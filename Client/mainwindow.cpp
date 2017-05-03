@@ -72,7 +72,7 @@ void MainWindow::on_lecture_valueChanged(int value)
     int min= value/60;
     int sec= value-60*min;
     if(sec < 10)
-        ui->current->setText(QString::number(min) + ":0" + QString::number(sec));
+        ui->current->setText("-" + QString::number(min) + ":0" + QString::number(sec));
     else
         ui->current->setText(QString::number(min) + ":" + QString::number(sec));
 }
