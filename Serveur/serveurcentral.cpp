@@ -186,6 +186,8 @@ void ServeurCentral::songRequested(QLocalSocket *socket, QString title)
 
             send(socket, songParsed);
 
+            qDebug() << songParsed;
+
             // on lance la musique
             send(socketMPV, buildACommand({"loadfile", newPath}));
         }
