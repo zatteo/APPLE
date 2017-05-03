@@ -6,6 +6,7 @@
 #include <QJsonDocument>
 
 int mute=1; //mute = 0
+int duree=0;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -59,12 +60,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_lecture_valueChanged(int value)
 {
-    int min= value/60;
-    int sec= value-60*min;
-    if(sec < 10)
-        ui->current->setText("-" + QString::number(min) + ":0" + QString::number(sec));
-    else
-        ui->current->setText(QString::number(min) + ":" + QString::number(sec));
+    s->setPositionMPV(value);
 }
 
 QString MainWindow::intToTimer(int value)
@@ -96,8 +92,6 @@ void MainWindow::FPause()
 void MainWindow::Update(QListWidgetItem * item)
 {
     ui->Titre_2->setText(item->text());
-    ui->lecture->setValue(0);
-    ui->artiste_2->hide();
     s->loadAndPlayMPV(item->text()); // charge un fichier et lance la lecture sur le serveur central
 }
 
@@ -120,6 +114,7 @@ void MainWindow::UpdateInt(QJsonObject json)
             int tmp= int(json.value("data").toDouble());
             ui->current->setText(intToTimer(tmp));
             ui->lecture->setValue(tmp);
+            ui->end->setText("-" + intToTimer(duree-tmp));
         }
     }
     if(json["event"] == "response"){
@@ -131,9 +126,9 @@ void MainWindow::UpdateInt(QJsonObject json)
             }
         }
         else if(json["name"] == "song"){
-            qDebug() << "LA";
             QJsonObject jsonTmp = json.value("data").toObject().value("taglib").toObject();
-
+            ui->lecture->setMaximum(jsonTmp.value("duration").toInt());
+            duree= jsonTmp.value("duration").toInt();
 //            qDebug() << jsonTmp.value("pictureData").toString().toWCharArray();
 
             QImage coverQImg;
