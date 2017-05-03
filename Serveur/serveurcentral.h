@@ -35,6 +35,7 @@ private:
     void songRequested(QLocalSocket *socket, QString title);
     void loadLocalSongs();
     bool isValidSong(QString song); // vérifie si le nom du fichier correspond à une musique
+    QJsonObject getTags(QString fileName);
 };
 
 #endif // SERVEURCENTRAL_H

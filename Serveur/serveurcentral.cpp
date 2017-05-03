@@ -1,4 +1,7 @@
 #include "serveurcentral.h"
+#include "taglib/tag.h"
+#include "taglib/fileref.h"
+#include "taglib/tpropertymap.h"
 #include <QDebug>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -91,8 +94,6 @@ void ServeurCentral::readSocketClient()
                 songsParsed["name"] = "songs";
                 songsParsed["data"] = songs;
 
-                qDebug() << songsParsed;
-
                 send(socket, songsParsed);
             }
             else if(retourClient["name"] == "playlists")
@@ -154,6 +155,8 @@ void ServeurCentral::readSocketMPV()
     }
 }
 
+/* requête pour un morceau
+ */
 void ServeurCentral::songRequested(QLocalSocket *socket, QString title)
 {
     // on vérifie si le morceau est dans la liste
@@ -164,25 +167,27 @@ void ServeurCentral::songRequested(QLocalSocket *socket, QString title)
 
         if(currentSong.value("title").toString() == title)
         {
-            // on ne connaît pas les métadonnées du morceau
+            // on construit le chemin local du morceau
+            QString newPath = songsPath + "/" + currentSong.value("title").toString();
+
+            // on récupère les métadonnées et on les insère dans le morceau
             if(currentSong.value("taglib") == QJsonValue::Undefined )
             {
-                // on récupère les métadonnées
-
-                // on envoie les métadonnées
-                send(socket, currentSong);
-
-                // on lance la musique
-                send(socketMPV, buildACommand({"loadfile", songsPath + "/" + currentSong.value("title").toString()}));
+                QJsonObject newTags = getTags(newPath);
+                currentSong["taglib"] = newTags;
+                songs.replace(i, currentSong);
             }
-            else // on connaît les métadonnées du morceau
-            {
-                // on envoie les métadonnées
-                send(socket, currentSong);
 
-                // on lance la musique
-                send(socketMPV, buildACommand({"loadfile", songsPath + "/" + currentSong.value("title").toString()}));
-            }
+            // on formate la réponse et on envoie les métadonnées
+            QJsonObject songParsed;
+            songParsed["event"] = "response";
+            songParsed["name"] = "song";
+            songParsed["data"] = currentSong;
+
+            send(socket, songParsed);
+
+            // on lance la musique
+            send(socketMPV, buildACommand({"loadfile", newPath}));
         }
     }
 }
@@ -258,4 +263,23 @@ bool ServeurCentral::isValidSong(QString song)
     {
         return false;
     }
+}
+
+QJsonObject ServeurCentral::getTags(QString fileName)
+{
+    QJsonObject newTags;
+    TagLib::FileRef f(fileName.toLatin1().data());
+    if(!f.isNull() && f.tag())
+    {
+        TagLib::PropertyMap tags = f.file()->properties();
+        for(TagLib::PropertyMap::ConstIterator i=tags.begin(); i != tags.end(); ++i)
+        {
+            for(TagLib::StringList::ConstIterator j=i->second.begin(); j!=i->second.end(); ++j)
+            {
+                newTags[QString::fromStdString(i->first.to8Bit(true))] = QString::fromStdString(j->to8Bit(true));
+            }
+        }
+    }
+
+    return newTags;
 }
