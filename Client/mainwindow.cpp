@@ -7,6 +7,7 @@
 
 int mute=1; //mute = 0
 int duree=0;
+int click= 0, modif=0;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -58,11 +59,6 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::on_lecture_valueChanged(int value)
-{
-    s->setPositionMPV(value);
-}
-
 QString MainWindow::intToTimer(int value)
 {
     int min= value/60;
@@ -111,10 +107,15 @@ void MainWindow::UpdateInt(QJsonObject json)
             }
         }
         else if(json["name"] == "time-pos"){
-            int tmp= int(json.value("data").toDouble());
-            ui->current->setText(intToTimer(tmp));
-            ui->lecture->setValue(tmp);
-            ui->end->setText("-" + intToTimer(duree-tmp));
+            if(modif == 0)
+            {
+                click= 1;
+                int tmp= int(json.value("data").toDouble());
+                ui->current->setText(intToTimer(tmp));
+                ui->lecture->setValue(tmp);
+                ui->end->setText("-" + intToTimer(duree-tmp));
+                click= 0;
+            }
         }
     }
     if(json["event"] == "response"){
@@ -134,6 +135,7 @@ void MainWindow::UpdateInt(QJsonObject json)
             QImage coverQImg;
 //            coverQImg.loadFromData(jsonTmp.value("pictureData").toString().toWCharArray());
             coverQImg.save("yolo.jpg", 0, 100);
+
         }
     }
 }
@@ -175,4 +177,22 @@ void MainWindow::setMainWindow(MainWindow *window)
 void MainWindow::on_volume_valueChanged(int value)
 {
     s->setVolumeMPV(value);
+}
+
+void MainWindow::on_lecture_valueChanged(int value)
+{
+    if(click == 0)
+        s->setPositionMPV(value);
+    ui->current->setText(intToTimer(value));
+    ui->end->setText("-"+intToTimer(duree-value));
+}
+
+void MainWindow::on_lecture_sliderPressed()
+{
+    modif= 1;
+}
+
+void MainWindow::on_lecture_sliderReleased()
+{
+    modif= 0;
 }
