@@ -38,20 +38,10 @@ MainWindow::MainWindow(QWidget *parent) :
     // QObject::connect(start, SIGNAL(entered()), this, SLOT(getInfo()));
     QObject::connect(play, SIGNAL(entered()), this, SLOT(FPause()));
     QObject::connect(pause, SIGNAL(entered()), this, SLOT(FPlay()));
-    QObject::connect(start, SIGNAL(exited()), this, SLOT(Beginning()));
     QObject::connect(ui->liste_musique, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(Update(QListWidgetItem*)));
 
     etat->setInitialState(start);
     etat->start();
-
-    ui->play_2->setDisabled(true);
-    ui->artiste_2->hide();
-    ui->Titre_2->hide();
-    ui->next_2->setDisabled(true);
-    ui->previous_2->setDisabled(true);
-    ui->lecture->setDisabled(true);
-    ui->current->setDisabled(true);
-    ui->end->setDisabled(true);
 
     ui->liste_musique->clear();
     ui->liste_groupe->clear();
@@ -77,6 +67,16 @@ void MainWindow::on_lecture_valueChanged(int value)
         ui->current->setText(QString::number(min) + ":" + QString::number(sec));
 }
 
+QString MainWindow::intToTimer(int value)
+{
+    int min= value/60;
+    int sec= value-60*min;
+    if(sec < 10)
+        return (QString::number(min) + ":0" + QString::number(sec));
+    else
+        return (QString::number(min) + ":" + QString::number(sec));
+}
+
 void MainWindow::FPlay()
 {
     s->playMPV(false);
@@ -93,18 +93,6 @@ void MainWindow::FPause()
     ui->play_2->setIcon(ButtonIcon);
 }
 
-void MainWindow::Beginning()
-{
-    ui->play_2->setDisabled(false);
-    ui->artiste_2->show();
-    ui->Titre_2->show();
-    ui->next_2->setDisabled(false);
-    ui->previous_2->setDisabled(false);
-    ui->lecture->setDisabled(false);
-    ui->current->setDisabled(false);
-    ui->end->setDisabled(false);
-}
-
 void MainWindow::Update(QListWidgetItem * item)
 {
     ui->Titre_2->setText(item->text());
@@ -115,18 +103,23 @@ void MainWindow::Update(QListWidgetItem * item)
 
 void MainWindow::UpdateInt(QJsonObject json)
 {
-    if(json["event"] == "property-changed"){
+    if(json["event"] == "property-change"){
         if(json["name"] == "volume"){
             int valeur= json.value("data").toInt();
             ui->volume->setValue(valeur);
         }
         else if(json["name"] == "mute"){
-            if(json["data"] == true && mute == 0){
+            if(json["data"] == true && mute == 1){
                 on_sound_2_released();
             }
-            else if(json["data"] == false && mute == 1){
+            else if(json["data"] == false && mute == 0){
                 on_sound_2_released();
             }
+        }
+        else if(json["name"] == "time-pos"){
+            int tmp= int(json.value("data").toDouble());
+            ui->current->setText(intToTimer(tmp));
+            ui->lecture->setValue(tmp);
         }
     }
     if(json["event"] == "response"){
