@@ -22,9 +22,6 @@ ServeurCentral::ServeurCentral(QObject *parent) : QObject(parent), socketMPV(new
     // on se connecte à MPV
     connect(socketMPV, "/tmp/socketMPV");
     QObject::connect(socketMPV, SIGNAL(readyRead()), this, SLOT(readSocketMPV()));
-
-    songRequested(NULL, "Come, Girl.mp3");
-    songRequested(NULL, "Come, Girl.mp3");
 }
 
 void ServeurCentral::connect(QLocalSocket *socket, QString adresse)
@@ -173,28 +170,24 @@ void ServeurCentral::songRequested(QLocalSocket *socket, QString title)
             // on construit le chemin local du morceau
             QString newPath = songsPath + "/" + currentSong.value("title").toString();
 
-            // on ne connaît pas les métadonnées du morceau
+            // on récupère les métadonnées et on les insère dans le morceau
             if(currentSong.value("taglib") == QJsonValue::Undefined )
             {
-                // on récupère les métadonnées et on les insère dans le morceau
                 QJsonObject newTags = getTags(newPath);
                 currentSong["taglib"] = newTags;
                 songs.replace(i, currentSong);
-
-                // on envoie les métadonnées
-                send(socket, currentSong);
-
-                // on lance la musique
-                send(socketMPV, buildACommand({"loadfile", newPath}));
             }
-            else // on connaît les métadonnées du morceau
-            {
-                // on envoie les métadonnées
-                send(socket, currentSong);
 
-                // on lance la musique
-                send(socketMPV, buildACommand({"loadfile", newPath}));
-            }
+            // on formate la réponse et on envoie les métadonnées
+            QJsonObject songParsed;
+            songParsed["event"] = "response";
+            songParsed["name"] = "song";
+            songParsed["data"] = currentSong;
+
+            send(socket, songParsed);
+
+            // on lance la musique
+            send(socketMPV, buildACommand({"loadfile", newPath}));
         }
     }
 }

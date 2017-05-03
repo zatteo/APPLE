@@ -137,6 +137,9 @@ void MainWindow::UpdateInt(QJsonObject json)
                 add_liste_musique(tmp.at(i).toObject().value("title").toString());
             }
         }
+        else if(json["name"] == "song"){
+            qDebug() << json["data"];
+        }
     }
 }
 
