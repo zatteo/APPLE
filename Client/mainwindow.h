@@ -28,10 +28,10 @@ private slots:
     void on_sound_2_released();
     void FPlay();
     void FPause();
-    void Beginning();
     void Update(QListWidgetItem *item);
     void add_liste_musique(QString nom);
     void add_liste_groupe(QString nom);
+    QString intToTimer(int value);
 
     void on_volume_valueChanged(int value);
 

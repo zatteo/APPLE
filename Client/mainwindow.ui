@@ -91,7 +91,7 @@ background-color: rgba(180, 180, 180,150);</string>
      </property>
      <property name="styleSheet">
       <string notr="true">border: none;
-font: 57 16pt &quot;Ubuntu&quot;;
+font: 57 15pt &quot;Ubuntu&quot;;
 background-color: rgba(180, 180, 180,150);</string>
      </property>
      <property name="sortingEnabled">
