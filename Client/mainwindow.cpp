@@ -151,6 +151,8 @@ void MainWindow::UpdateInt(QJsonObject json)
         // toutes les musiques
         if(json["name"] == "songs"){
             int i;
+            songs = json["data"].toArray();
+
             QJsonArray tmp= json["data"].toArray();
             for(i=0; i< tmp.size(); i++){
                 add_liste_musique(tmp.at(i).toObject().value("title").toString());
@@ -171,10 +173,14 @@ void MainWindow::UpdateInt(QJsonObject json)
         }
         // toutes les playlists
         else if(json["name"] == "playlists"){
+            playlists = json["data"].toArray();
+
             // équivalent à songs mais avec les playlists (NON IMPLEMENTE)
         }
         // toutes les radios
         else if(json["name"] == "radios"){
+            radios = json["data"].toArray();
+
             // équivalent à songs mais avec les radios
         }
     }
@@ -248,3 +254,19 @@ void MainWindow::on_lecture_sliderReleased()
 {
     modif= 0;
 }
+
+QJsonArray MainWindow::getSongs()
+{
+    return songs;
+}
+
+QJsonArray MainWindow::getPlaylists()
+{
+    return playlists;
+}
+
+QJsonArray MainWindow::getRadios()
+{
+    return radios;
+}
+

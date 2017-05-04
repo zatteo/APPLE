@@ -119,6 +119,43 @@ void Serveur::setPositionMPV(int position)
 
     send(commandeMPV);
 }
+
+void Serveur::next(QString currentSong)
+{
+    for(int i = 0; i < w->getSongs().size(); i++)
+    {
+        if(w->getSongs().at(i).toObject().value("title") == currentSong)
+        {
+            if(i == w->getSongs().size() - 1)
+            {
+                loadAndPlayMPV(w->getSongs().at(0).toObject().value("title").toString());
+            }
+            else
+            {
+                loadAndPlayMPV(w->getSongs().at(i + 1).toObject().value("title").toString());
+            }
+        }
+    }
+}
+
+void Serveur::previous(QString currentSong)
+{
+    for(int i = 0; i < w->getSongs().size(); i++)
+    {
+        if(w->getSongs().at(i).toObject().value("title") == currentSong)
+        {
+            if(i == 0)
+            {
+                loadAndPlayMPV(w->getSongs().at(w->getSongs().size() - 1).toObject().value("title").toString());
+            }
+            else
+            {
+                loadAndPlayMPV(w->getSongs().at(i - 1).toObject().value("title").toString());
+            }
+        }
+    }
+}
+
 /* passe en mode avance rapide
  */
 void Serveur::setVitesseAvantRapide()

@@ -6,6 +6,7 @@
 #include <QMainWindow>
 #include <QListWidgetItem>
 #include <QJsonObject>
+#include <QJsonArray>
 
 namespace Ui {
     class MainWindow;
@@ -22,6 +23,9 @@ public:
     ~MainWindow();
     void setMainWindow(MainWindow *window); // récupére la MainWindow
     void UpdateInt(QJsonObject json);
+    QJsonArray getSongs();
+    QJsonArray getPlaylists();
+    QJsonArray getRadios();
 
 private slots:
     void on_sound_2_released();
@@ -36,7 +40,6 @@ private slots:
     void on_lecture_sliderPressed();
     void on_lecture_sliderReleased();
 
-
 private:
     Ui::MainWindow *ui;
     Serveur * s;
@@ -50,6 +53,10 @@ private:
     QState * next;
     QState * previous;
     QImage imageFromJson(const QJsonValue & val);
+
+    QJsonArray songs; // liste des morceaux
+    QJsonArray playlists; // liste des playlists
+    QJsonArray radios; // liste des radios
 
 signals:
     void SPlay();
