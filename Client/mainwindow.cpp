@@ -67,7 +67,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(next, SIGNAL(entered()), timer, SLOT(start()));
     QObject::connect(next, SIGNAL(exited()), this, SLOT(NextSong()));
     QObject::connect(previous, SIGNAL(entered()), timer, SLOT(start()));
-    QObject::connect(previous, SIGNAL(exited()), timer, SLOT(PreviousSong()));
+    QObject::connect(previous, SIGNAL(exited()), this, SLOT(PreviousSong()));
     QObject::connect(avance_rapide, SIGNAL(entered()), this, SLOT(AvanceRapide()));
     QObject::connect(avance_rapide, SIGNAL(exited()), this, SLOT(AvanceNormal()));
     QObject::connect(ui->liste_musique, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(Update(QListWidgetItem*)));
@@ -191,6 +191,7 @@ void MainWindow::NextSong(){
 void MainWindow::PreviousSong(){
     if(timer->isActive()){
         timer->stop();
+        qDebug() << "ohjohouhohio";
         s->previous(ui->Titre_2->text());
     }
 }
@@ -244,7 +245,6 @@ void MainWindow::UpdateInt(QJsonObject json)
 
     if(json["event"] == "response"){
 
-        qDebug() << "YOLO" << json;
         // toutes les musiques
         if(json["name"] == "songs"){
             songs = json["data"].toArray();
@@ -287,6 +287,14 @@ void MainWindow::UpdateInt(QJsonObject json)
                 add_liste_groupe(playlists.at(i).toObject().value("title").toString());
             }
             // équivalent à songs mais avec les playlists (NON IMPLEMENTE)
+        }
+        // toutes les musiques d'une playlist
+        else if(json["name"] == "playlist"){
+            QJsonArray yolo = json["data"].toArray();
+            int i;
+            for(i=0; i<yolo.size(); i++){
+                add_liste_musique(yolo.at(i).toString());
+            }
         }
         // toutes les radios
         else if(json["name"] == "radios"){
