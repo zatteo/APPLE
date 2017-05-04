@@ -4,22 +4,21 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
-#include <QTimer>
+#include <QFile>
 
 int mute=1; //mute = 0
 int duree=0;
 int click= 0, modif=0;
-QTimer * rapide;
 
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    rapide= new QTimer(this);
-    rapide->setSingleShot(true);
-    rapide->setTimerType(Qt::PreciseTimer);
-    rapide->setInterval(1500);
+    timer= new QTimer(this);
+    timer->setSingleShot(true);
+    timer->setTimerType(Qt::PreciseTimer);
+    timer->setInterval(500);
 
     ui->setupUi(this);
 
@@ -31,30 +30,35 @@ MainWindow::MainWindow(QWidget *parent) :
     retour_rapide= new QState(etat);
     next= new QState(etat);
     previous= new QState(etat);
+
     start->addTransition(this, SIGNAL(SPlay()), play);
-    start->addTransition(ui->liste_musique, SIGNAL(doubleClicked(QModelIndex)), play);
+    start->addTransition(this, SIGNAL(SPause()), pause);
 
     play->addTransition(ui->next_2, SIGNAL(pressed()), next);
     play->addTransition(ui->previous_2, SIGNAL(pressed()), previous);
     play->addTransition(ui->play_2, SIGNAL(clicked()), pause);
+    play->addTransition(this, SIGNAL(SPause()), pause);
 
     next->addTransition(ui->next_2, SIGNAL(released()), play);
     previous->addTransition(ui->previous_2, SIGNAL(released()), play);
 
-    next->addTransition(rapide, SIGNAL(timeout()), avance_rapide);
-    previous->addTransition(rapide, SIGNAL(timeout()), retour_rapide);
+    next->addTransition(timer, SIGNAL(timeout()), avance_rapide);
+    previous->addTransition(timer, SIGNAL(timeout()), retour_rapide);
 
     avance_rapide->addTransition(ui->next_2, SIGNAL(released()), play);
     retour_rapide->addTransition(ui->previous_2, SIGNAL(released()), play);
     pause->addTransition(ui->play_2, SIGNAL(clicked()), play);
+    pause->addTransition(this, SIGNAL(SPlay()), play);
+
 
     // QObject::connect(start, SIGNAL(entered()), this, SLOT(getInfo()));
     QObject::connect(play, SIGNAL(entered()), this, SLOT(FPause()));
     QObject::connect(pause, SIGNAL(entered()), this, SLOT(FPlay()));
 
-
-    QObject::connect(next, SIGNAL(entered()), SLOT(rapide->start();));
-    QObject::connect(previous, SIGNAL(entered()), SLOT(rapide->start();));
+    QObject::connect(next, SIGNAL(entered()), timer, SLOT(start()));
+    QObject::connect(previous, SIGNAL(entered()), timer, SLOT(start()));
+    QObject::connect(avance_rapide, SIGNAL(entered()), this, SLOT(AvanceRapide()));
+    QObject::connect(avance_rapide, SIGNAL(exited()), this, SLOT(AvanceNormal()));
     QObject::connect(ui->liste_musique, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(Update(QListWidgetItem*)));
 
     etat->setInitialState(start);
@@ -107,6 +111,13 @@ void MainWindow::Update(QListWidgetItem * item)
     s->loadAndPlayMPV(item->text()); // charge un fichier et lance la lecture sur le serveur central
 }
 
+void MainWindow::AvanceRapide()
+{ s->setVitesseAvantRapide(); }
+void MainWindow::AvanceNormal()
+{ s->setVitesseNormale(); }
+void MainWindow::RetourRapide()
+{ s->setVitesseArriereRapide(); }
+
 void MainWindow::UpdateInt(QJsonObject json)
 {
     if(json["event"] == "property-change"){
@@ -120,6 +131,14 @@ void MainWindow::UpdateInt(QJsonObject json)
             }
             else if(json["data"] == false && mute == 0){
                 on_sound_2_released();
+            }
+        }
+        else if(json["name"] == "pause"){
+            if(json["data"] == true){
+                emit SPause();
+            }
+            else if(json["data"] == false){
+                emit SPlay();
             }
         }
         else if(json["name"] == "time-pos"){
@@ -155,15 +174,14 @@ void MainWindow::UpdateInt(QJsonObject json)
         // une pochette
         else if(json["name"] == "cover")
         {
-            qDebug() << "enregistrement de l'image oklm";
-
             // on traite la pochette
             QImage coverQImg = imageFromJson(json["data"].toObject()["picture"]);
 
             QString saveName = json["data"].toObject()["title"].toString() + ".jpg";
 
-                qDebug() << saveName;
             coverQImg.save(json["data"].toObject()["title"].toString() + ".jpg", 0, 50);
+
+            ui->fond->setStyleSheet("background-image: url(\"" + saveName + "\");");
         }
         // toutes les playlists
         else if(json["name"] == "playlists"){

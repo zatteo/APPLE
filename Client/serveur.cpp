@@ -23,9 +23,6 @@ void Serveur::connect(QString adresse)
 
     // on récupère l'état actuel du lecteur
     getCurrentStateMPV();
-
-    // on s'inscrit aux changements d'états pour gérer le multi-utilisateur
-    subscribeChangingStateMPV();
 }
 
 Serveur::~Serveur() {

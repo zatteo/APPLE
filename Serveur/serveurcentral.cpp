@@ -403,7 +403,7 @@ QJsonObject ServeurCentral::getCover(QString fileName)
         // sinon on encode
         QImage coverQImg;
         coverQImg.loadFromData((const uchar *) coverImg->picture().data(), coverImg->picture().size());
-        coverQImg = coverQImg.scaled(100, 100, Qt::KeepAspectRatio);
+        coverQImg = coverQImg.scaled(1131, 581, Qt::KeepAspectRatio);
 
         QFileInfo fileInfo(fileName);
 

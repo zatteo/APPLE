@@ -30,13 +30,15 @@ public:
     void setPositionMPV(int position); // change la position de la musique
     void next(QString currentSong);
     void previous(QString currentSong);
-    void setVitesseAvantRapide(); // passe en mode avance rapide
-    void setVitesseArriereRapide(); // passe en mode retour rapide
-    void setVitesseNormale(); // passe en mode vitesse normale
     void setMainWindow(MainWindow *window); // récupére la MainWindow
     void requestAllSongs();
     void requestAllPlaylists();
     void requestAllRadios();
+
+public slots:
+    void setVitesseAvantRapide(); // passe en mode avance rapide
+    void setVitesseArriereRapide(); // passe en mode retour rapide
+    void setVitesseNormale(); // passe en mode vitesse normale
 
 private slots:
     void readSocket();
