@@ -31,14 +31,11 @@ private slots:
     void add_liste_musique(QString nom);
     void add_liste_groupe(QString nom);
     QString intToTimer(int value);
-
     void on_volume_valueChanged(int value);
-
     void on_lecture_valueChanged(int position);
-
     void on_lecture_sliderPressed();
-
     void on_lecture_sliderReleased();
+
 
 private:
     Ui::MainWindow *ui;
