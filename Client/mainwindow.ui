@@ -456,7 +456,7 @@ background-color: rgba(180, 180, 180,230);</string>
      <x>0</x>
      <y>0</y>
      <width>1124</width>
-     <height>25</height>
+     <height>19</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -479,7 +479,13 @@ background-color: rgba(180, 180, 180,230);</string>
     <addaction name="menuLangues"/>
     <addaction name="action_propos"/>
    </widget>
+   <widget class="QMenu" name="menuyolo">
+    <property name="title">
+     <string>yolo</string>
+    </property>
+   </widget>
    <addaction name="menuParam_tres"/>
+   <addaction name="menuyolo"/>
   </widget>
   <action name="actionFrances">
    <property name="text">
