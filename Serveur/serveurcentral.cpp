@@ -133,6 +133,10 @@ void ServeurCentral::readSocketClient()
             {
                 songRequested(socket, retourClient["data"].toString());
             }
+            else if(retourClient["name"].toString() == "playlist") // demande de la pochette d'un morceau
+            {
+                playlistRequested(socket, retourClient["data"].toString());
+            }
             else if(retourClient["name"].toString() == "cover") // demande de la pochette d'un morceau
             {
                 coverRequested(socket, retourClient["data"].toString());
@@ -147,7 +151,7 @@ void ServeurCentral::readSocketClient()
                 send(socketMPV, buildACommand({"loadfile", newPath}));
             }
             else if(retourClient["command"].isArray() && retourClient["command"].toArray().at(0).toString() == "loadlist")
-            {
+            {                
                 // on formate la nouvelle commande avec le chemin des musiques
                 QString newPath = songsPath + "/" + retourClient["command"].toArray().at(1).toString();
                 send(socketMPV, buildACommand({"loadlist", newPath}));
@@ -442,4 +446,37 @@ void ServeurCentral::subscribeChangingStateMPV()
     send(socketMPV, buildACommand({"observe_property", 4, "start"})); // utile ?
     send(socketMPV, buildACommand({"observe_property", 5, "time-pos"}));
     send(socketMPV, buildACommand({"observe_property", 6, "filename"}));
+}
+
+// récupération des morceaux d'une playlist
+void ServeurCentral::playlistRequested(QLocalSocket *socket, QString playlist)
+{
+    QString playlistPath = songsPath + playlist;
+
+    QJsonObject response;
+    response["event"] = "response";
+    response["name"] = "playlist";
+    QJsonArray responseArray;
+
+    QFile inputFile(playlistPath);
+    if(inputFile.open(QIODevice::ReadOnly))
+    {
+       QTextStream in(&inputFile);
+       while (!in.atEnd())
+       {
+          QString line = in.readLine();
+          if(line.startsWith("#EXTINF:"))
+          {
+            QString tmp = line.section(',', 1);
+            responseArray.append(tmp);
+          }
+       }
+       inputFile.close();
+    }
+
+    response["data"] = responseArray;
+
+    qDebug() << response;
+
+    send(socket, response);
 }

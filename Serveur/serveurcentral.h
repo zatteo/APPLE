@@ -41,6 +41,7 @@ private:
     QJsonObject getCover(QString fileName);
     QJsonValue jsonValFromImage(const QImage & p);
     void subscribeChangingStateMPV(); // inscription aux changements d'états du serveur central
+    void playlistRequested(QLocalSocket *socket, QString playlist);
 };
 
 #endif // SERVEURCENTRAL_H

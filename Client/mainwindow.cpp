@@ -545,20 +545,6 @@ void MainWindow::updateLanguage(QString l)
     ui->menuLangues->setTitle(translations[l].toArray().at(1).toString());
     ui->action_propos->setText(translations[l].toArray().at(2).toString());
 
-//    // on met à jour l'interface
-//    if(l == "EN")
-//    {
-//        ui->menuParam_tres->setTitle(translations.value("EN").toArray().at(0).toString());
-//        ui->menuLangues->setTitle(translations["EN"].toArray().at(1).toString());
-//        ui->action_propos->setText(translations["EN"].toArray().at(2).toString());
-//    }
-//    else
-//    {
-//        ui->menuParam_tres->setTitle(translations["FR"].toArray().at(0).toString());
-//        ui->menuLangues->setTitle(translations["FR"].toArray().at(1).toString());
-//        ui->action_propos->setText(translations["FR"].toArray().at(2).toString());
-//    }
-
     // on modifie le fichier de configuration
     QJsonObject newConfig;
     newConfig["language"] = l;
