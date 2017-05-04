@@ -62,7 +62,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QObject::connect(start, SIGNAL(entered()), this, SLOT(getInfo()));
     QObject::connect(next, SIGNAL(entered()), timer, SLOT(start()));
-    QObject::connect(next, SIGNAL(exited()), this, SLOT(NextSong));
+    QObject::connect(next, SIGNAL(exited()), this, SLOT(NextSong()));
     QObject::connect(previous, SIGNAL(entered()), timer, SLOT(start()));
     QObject::connect(avance_rapide, SIGNAL(entered()), this, SLOT(AvanceRapide()));
     QObject::connect(avance_rapide, SIGNAL(exited()), this, SLOT(AvanceNormal()));
@@ -73,7 +73,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->liste_musique->clear();
     ui->liste_groupe->clear();
-    add_liste_groupe("Toutes les musiques");
+    add_liste_groupe("Titres");
+    add_liste_groupe("Radios");
+    add_liste_groupe("Playlistes");
 
     s = new Serveur();
     s->connect("/tmp/socketClient");
@@ -179,11 +181,6 @@ void MainWindow::UpdateInt(QJsonObject json)
         if(json["name"] == "songs"){
             int i;
             songs = json["data"].toArray();
-
-            QJsonArray tmp= json["data"].toArray();
-            for(i=0; i< tmp.size(); i++){
-                add_liste_musique(tmp.at(i).toObject().value("title").toString());
-            }
         }
         // une musique
         else if(json["name"] == "song"){
@@ -423,4 +420,21 @@ bool MainWindow::isCoverPresent(QString title)
     }
 
     return false;
+}
+
+
+void MainWindow::on_liste_groupe_itemClicked(QListWidgetItem *item)
+{
+    QJsonArray tab;
+    if(item->text() == "Radios")
+        tab= radios;
+    else if(item->text() == "Titres")
+        tab= songs;
+    else if(item->text() == "Playlistes")
+        tab= playlists;
+    ui->liste_musique->clear();
+    int i;
+    for(i=0; i< tab.size(); i++){
+        add_liste_musique(tab.at(i).toObject().value("title").toString());
+    }
 }
