@@ -403,7 +403,7 @@ QJsonObject ServeurCentral::getCover(QString fileName)
         // sinon on encode
         QImage coverQImg;
         coverQImg.loadFromData((const uchar *) coverImg->picture().data(), coverImg->picture().size());
-        coverQImg = coverQImg.scaled(1131, 581, Qt::KeepAspectRatioByExpanding);
+        coverQImg = coverQImg.scaled(1131, 581, Qt::IgnoreAspectRatio);
 
         QFileInfo fileInfo(fileName);
 
@@ -439,4 +439,5 @@ void ServeurCentral::subscribeChangingStateMPV()
     send(socketMPV, buildACommand({"observe_property", 3, "mute"})); // mute
     send(socketMPV, buildACommand({"observe_property", 4, "start"})); // position manuelle
     send(socketMPV, buildACommand({"observe_property", 5, "time-pos"}));
+    send(socketMPV, buildACommand({"observe_property", 6, "filename"}));
 }
