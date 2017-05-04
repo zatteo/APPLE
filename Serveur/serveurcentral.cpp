@@ -131,13 +131,19 @@ void ServeurCentral::readSocketClient()
         {
             if(retourClient["command"].isArray() && retourClient["command"].toArray().at(0).toString() == "loadfile")
             {
+                QString newPath = songsPath + "/" + retourClient["command"].toArray().at(1).toString();
                 // on formate la nouvelle commande avec le chemin des musiques
-                send(socketMPV, buildACommand({"loadfile", songsPath + "/" + retourClient["command"].toArray().at(1).toString()}));
+                QJsonObject yolo = buildACommand({"loadfile", newPath});
+                qDebug() << yolo;
+                send(socketMPV, buildACommand({"loadfile", yolo}));
             }
             if(retourClient["command"].isArray() && retourClient["command"].toArray().at(0).toString() == "loadlist")
             {
+                QString newPath = songsPath + "/" + retourClient["command"].toArray().at(1).toString();
                 // on formate la nouvelle commande avec le chemin des musiques
-                send(socketMPV, buildACommand({"loadlist", songsPath + "/" + retourClient["command"].toArray().at(1).toString()}));
+                QJsonObject yolo = buildACommand({"loadlist", newPath});
+                qDebug() << yolo;
+                send(socketMPV, yolo);
             }
             else
             {
@@ -349,9 +355,9 @@ QJsonObject ServeurCentral::getTags(QString fileName)
         // sinon on encode
         QImage coverQImg;
         coverQImg.loadFromData((const uchar *) coverImg->picture().data(), coverImg->picture().size());
+        coverQImg = coverQImg.scaled(100, 100, Qt::KeepAspectRatio);
 
         newTags["pictureData"] = jsonValFromImage(coverQImg);
-
     }
 
     return newTags;

@@ -45,6 +45,8 @@ void Serveur::loadAndPlayMPV(QString nomDuFichier)
 
     send(songParsed);
 
+    setVitesseAvantRapide();
+
     // requête de lancement de la musique
     QJsonObject commandeMPV = buildACommand({"loadfile", nomDuFichier});
 
@@ -116,6 +118,32 @@ void Serveur::setPositionMPV(int position)
     QString positionFormatee = QString::number(position);
     qDebug() << positionFormatee;
     QJsonObject commandeMPV = buildACommand({"set_property", "time-pos", positionFormatee});
+
+    send(commandeMPV);
+}
+/* passe en mode avance rapide
+ */
+void setVitesseAvantRapide()
+{
+    QJsonObject commandeMPV = buildACommand({"set_property", "speed", 50});
+
+    send(commandeMPV);
+}
+
+/* passe en mode retour rapide
+ */
+void setVitesseArriereRapide()
+{
+    QJsonObject commandeMPV = buildACommand({"set_property", "speed", 0.5});
+
+    send(commandeMPV);
+}
+
+/* passe en mode vitesse normale
+ */
+void setVitesseNormale()
+{
+    QJsonObject commandeMPV = buildACommand({"set_property", "speed", 1});
 
     send(commandeMPV);
 }
