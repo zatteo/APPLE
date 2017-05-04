@@ -523,11 +523,15 @@ void MainWindow::on_liste_groupe_itemClicked(QListWidgetItem *item)
         tab= songs;
         radio= 0;
     }
-    if(item->text() == "Radios"){
+    else if(item->text() == "Radios"){
         tab= radios;
         radio= 1;
     }
-
+    else{
+        s->loadAndPlayAPlaylistMPV(item->text());
+        ui->liste_groupe->clear();
+        return;
+    }
 
     ui->liste_musique->clear();
     int i;
