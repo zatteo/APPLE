@@ -89,6 +89,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+// convertit les secondes en min:secondes (string)
 QString MainWindow::intToTimer(int value)
 {
     int min= value/60;
@@ -99,6 +100,7 @@ QString MainWindow::intToTimer(int value)
         return (QString::number(min) + ":" + QString::number(sec));
 }
 
+//fonction play
 void MainWindow::FPlay()
 {
     s->playMPV(false);
@@ -107,6 +109,7 @@ void MainWindow::FPlay()
     ui->play_2->setIcon(ButtonIcon);
 }
 
+//fonction pause
 void MainWindow::FPause()
 {
     s->playMPV(true);
@@ -115,11 +118,13 @@ void MainWindow::FPause()
     ui->play_2->setIcon(ButtonIcon);
 }
 
+//Update le titre et lance la musique
 void MainWindow::Update(QListWidgetItem * item)
 {
     ui->Titre_2->setText(item->text());
     s->loadAndPlayMPV(item->text()); // charge un fichier et lance la lecture sur le serveur central
 }
+
 
 void MainWindow::AvanceRapide()
 { s->setVitesseAvantRapide(); }
@@ -134,9 +139,12 @@ void MainWindow::NextSong(){
     }
 }
 
+//get info pour avoir les informations au démarrage
 void MainWindow::getInfo()
 { s->getCurrentStateMPV(); }
 
+
+//fonction qui est appelé à chaque message et traite tous les messages
 void MainWindow::UpdateInt(QJsonObject json)
 {
     if(json["event"] == "property-change"){
@@ -223,6 +231,7 @@ void MainWindow::UpdateInt(QJsonObject json)
 
     if(json["error"] == "success")
     {
+        //envoi au debut du statut play-pause
         if(json["request_id"] == 1)
         {
             if(json["data"] == true){
@@ -232,9 +241,11 @@ void MainWindow::UpdateInt(QJsonObject json)
                 emit SPlay();
             }
         }
+        // titre de la musique en cour
         else if(json["request_id"] ==2){
             ui->Titre_2->setText(json["data"].toString());
         }
+        // son mute ou pas
         if(json["request_id"] == 3){
             if(json["data"] == true && mute == 1){
                 on_sound_2_released();
@@ -243,6 +254,7 @@ void MainWindow::UpdateInt(QJsonObject json)
                 on_sound_2_released();
             }
         }
+        // volume de la musique
         if(json["request_id"] == 4){
             ui->volume->setValue(json["data"].toInt());
         }
@@ -267,6 +279,7 @@ void MainWindow::UpdateLocal(QString title)
 //    ui->fond->setStyleSheet("background-image: url(\"" + saveName + "\");");
 
 }
+
 
 void MainWindow::add_liste_musique(QString nom)
 {
