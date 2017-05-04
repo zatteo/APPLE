@@ -50,6 +50,7 @@ private slots:
     void RetourRapide();
     void AvanceNormal();
     void NextSong();
+    void PreviousSong();
     void getInfo();
 
     void on_liste_groupe_itemClicked(QListWidgetItem *item);

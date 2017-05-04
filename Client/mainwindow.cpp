@@ -65,6 +65,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(next, SIGNAL(entered()), timer, SLOT(start()));
     QObject::connect(next, SIGNAL(exited()), this, SLOT(NextSong()));
     QObject::connect(previous, SIGNAL(entered()), timer, SLOT(start()));
+    QObject::connect(previous, SIGNAL(exited()), timer, SLOT(PreviousSong()));
     QObject::connect(avance_rapide, SIGNAL(entered()), this, SLOT(AvanceRapide()));
     QObject::connect(avance_rapide, SIGNAL(exited()), this, SLOT(AvanceNormal()));
     QObject::connect(ui->liste_musique, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(Update(QListWidgetItem*)));
@@ -151,6 +152,12 @@ void MainWindow::NextSong(){
     if(timer->isActive()){
         timer->stop();
         s->next(ui->Titre_2->text());
+    }
+}
+void MainWindow::PreviousSong(){
+    if(timer->isActive()){
+        timer->stop();
+        s->previous(ui->Titre_2->text());
     }
 }
 
