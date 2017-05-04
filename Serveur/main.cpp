@@ -1,3 +1,7 @@
+/* AUTHOR : SUTTER Nicolas et POIZAT Théo
+ * L3 CMI ISR
+ */
+
 #include "serveurcentral.h"
 #include <QCoreApplication>
 
