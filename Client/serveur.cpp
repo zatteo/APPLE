@@ -45,8 +45,6 @@ void Serveur::loadAndPlayMPV(QString nomDuFichier)
 
     send(songParsed);
 
-    setVitesseAvantRapide();
-
     // requête de lancement de la musique
     QJsonObject commandeMPV = buildACommand({"loadfile", nomDuFichier});
 
@@ -121,6 +119,43 @@ void Serveur::setPositionMPV(int position)
 
     send(commandeMPV);
 }
+
+void Serveur::next(QString currentSong)
+{
+    for(int i = 0; i < w->songs.size(); i++)
+    {
+        if(w->songs.at(i).toObject().value("title") == currentSong)
+        {
+            if(i == w->songs.size() - 1)
+            {
+                loadAndPlayMPV(w->songs.at(0).toObject().value("title"));
+            }
+            else
+            {
+                loadAndPlayMPV(w->songs.at(i + 1).toObject().value("title"));
+            }
+        }
+    }
+}
+
+void Serveur::previous(QString currentSong)
+{
+    for(int i = 0; i < w->size(); i++)
+    {
+        if(w->songs.at(i).toObject().value("title") == currentSong)
+        {
+            if(i == 0)
+            {
+                loadAndPlayMPV(w->songs.at(w->songs.size() - 1).toObject().value("title"));
+            }
+            else
+            {
+                loadAndPlayMPV(w->songs.at(i - 1).toObject().value("title"));
+            }
+        }
+    }
+}
+
 /* passe en mode avance rapide
  */
 void Serveur::setVitesseAvantRapide()

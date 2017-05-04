@@ -6,6 +6,7 @@
 #include <QMainWindow>
 #include <QListWidgetItem>
 #include <QJsonObject>
+#include <QJsonArray>
 
 namespace Ui {
     class MainWindow;
@@ -39,6 +40,11 @@ private slots:
     void on_lecture_sliderPressed();
 
     void on_lecture_sliderReleased();
+
+protected:
+    QJsonArray songs; // liste des morceaux
+    QJsonArray playlists; // liste des playlists
+    QJsonArray radios; // liste des radios
 
 private:
     Ui::MainWindow *ui;

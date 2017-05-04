@@ -126,6 +126,8 @@ void ServeurCentral::readSocketClient()
             {
                 songRequested(socket, retourClient["data"].toString());
             }
+
+            qDebug() << "1";
         }
         else
         {
@@ -172,6 +174,8 @@ void ServeurCentral::readSocketMPV()
  */
 void ServeurCentral::songRequested(QLocalSocket *socket, QString title)
 {
+    qDebug() << "songRequested" << title;
+
     // on vérifie si le morceau est dans la liste
     for(int i = 0; i < songs.size(); i++)
     {

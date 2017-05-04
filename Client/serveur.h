@@ -9,6 +9,7 @@
 #include <QState>
 #include <QHistoryState>
 #include <QFinalState>
+#include <QJsonArray>
 
 class MainWindow;
 
@@ -27,6 +28,8 @@ public:
     void setVolumeMPV(int volume); // change le volume
     void muteMPV(bool mute); // mute le volume
     void setPositionMPV(int position); // change la position de la musique
+    void next(QString currentSong);
+    void previous(QString currentSong);
     void setVitesseAvantRapide(); // passe en mode avance rapide
     void setVitesseArriereRapide(); // passe en mode retour rapide
     void setVitesseNormale(); // passe en mode vitesse normale
