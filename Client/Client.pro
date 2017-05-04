@@ -24,9 +24,11 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    serveur.cpp
+    serveur.cpp \
+    myincrediblewidget.cpp
 
 HEADERS  += mainwindow.h \
-    serveur.h
+    serveur.h \
+    myincrediblewidget.h
 
 FORMS    += mainwindow.ui

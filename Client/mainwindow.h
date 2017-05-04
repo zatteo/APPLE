@@ -13,6 +13,7 @@
 #include <QJsonArray>
 #include <QTimer>
 #include <QTranslator>
+#include "myincrediblewidget.h"
 
 namespace Ui {
     class MainWindow;
