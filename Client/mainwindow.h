@@ -52,6 +52,8 @@ private slots:
     void NextSong();
     void getInfo();
 
+    void on_liste_groupe_itemClicked(QListWidgetItem *item);
+
 private:
     Ui::MainWindow *ui;
     Serveur * s;
