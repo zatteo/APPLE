@@ -37,6 +37,7 @@ Serveur::~Serveur() {
  */
 void Serveur::loadAndPlayMPV(QString nomDuFichier)
 {
+    // requête des métadonnées
     QJsonObject songParsed;
     songParsed["event"] = "request";
     songParsed["name"] = "song";
@@ -44,7 +45,30 @@ void Serveur::loadAndPlayMPV(QString nomDuFichier)
 
     send(songParsed);
 
+    // requête de lancement de la musique
     QJsonObject commandeMPV = buildACommand({"loadfile", nomDuFichier});
+
+    send(commandeMPV);
+}
+
+/* charge une playlist et lance la lecture sur le serveur central
+ * nomDuFichier
+ */
+void Serveur::loadAndPlayAPlaylistMPV(QString nomDuFichier)
+{
+    // requête de lancement de la playlist
+    QJsonObject commandeMPV = buildACommand({"loadlist", "Playlists/" + nomDuFichier});
+
+    send(commandeMPV);
+}
+
+/* charge une radio et lance la lecture sur le serveur central
+ * nomDuFichier
+ */
+void Serveur::loadAndPlayARadioMPV(QString nomDuFichier)
+{
+    // requête de lancement de la playlist
+    QJsonObject commandeMPV = buildACommand({"loadlist", "Radios/" + nomDuFichier});
 
     send(commandeMPV);
 }
@@ -105,6 +129,7 @@ void Serveur::readSocket()
 
         QJsonParseError error;
         QJsonObject retourMPV = QJsonDocument::fromJson(line, &error).object();
+
         qDebug() << retourMPV;
 
         // ici on a reçu une réponse de MPV

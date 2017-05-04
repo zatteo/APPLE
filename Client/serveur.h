@@ -21,6 +21,8 @@ public:
     ~Serveur();
     void connect(QString adresse);
     void loadAndPlayMPV(QString nomDuFichier); // charge un fichier et lance la lecture sur le serveur central
+    void loadAndPlayAPlaylistMPV(QString nomDuFichier); // charge une playlist et lance la lecture sur le serveur central
+    void loadAndPlayARadioMPV(QString nomDuFichier); // charge une radio et lance la lecture sur le serveur central
     void playMPV(bool play); // met en play/pause la lecture sur le serveur central
     void setVolumeMPV(int volume); // change le volume sur le serveur central
     void muteMPV(bool mute); // mute le volume sur le serveur central
