@@ -427,9 +427,9 @@ background-color: rgba(180, 180, 180,150);</string>
     <widget class="QLabel" name="end">
      <property name="geometry">
       <rect>
-       <x>1090</x>
+       <x>1080</x>
        <y>10</y>
-       <width>31</width>
+       <width>41</width>
        <height>21</height>
       </rect>
      </property>

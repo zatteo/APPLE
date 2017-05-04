@@ -6,6 +6,8 @@
 #include <QJsonDocument>
 
 int mute=1; //mute = 0
+int duree=0;
+int click= 0, modif=0;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -58,16 +60,6 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::on_lecture_valueChanged(int value)
-{
-    int min= value/60;
-    int sec= value-60*min;
-    if(sec < 10)
-        ui->current->setText("-" + QString::number(min) + ":0" + QString::number(sec));
-    else
-        ui->current->setText(QString::number(min) + ":" + QString::number(sec));
-}
-
 QString MainWindow::intToTimer(int value)
 {
     int min= value/60;
@@ -97,8 +89,6 @@ void MainWindow::FPause()
 void MainWindow::Update(QListWidgetItem * item)
 {
     ui->Titre_2->setText(item->text());
-    ui->lecture->setValue(0);
-    ui->artiste_2->hide();
     s->loadAndPlayMPV(item->text()); // charge un fichier et lance la lecture sur le serveur central
 }
 
@@ -118,9 +108,15 @@ void MainWindow::UpdateInt(QJsonObject json)
             }
         }
         else if(json["name"] == "time-pos"){
-            int tmp= int(json.value("data").toDouble());
-            ui->current->setText(intToTimer(tmp));
-            ui->lecture->setValue(tmp);
+            if(modif == 0)
+            {
+                click= 1;
+                int tmp= int(json.value("data").toDouble());
+                ui->current->setText(intToTimer(tmp));
+                ui->lecture->setValue(tmp);
+                ui->end->setText("-" + intToTimer(duree-tmp));
+                click= 0;
+            }
         }
     }
     if(json["event"] == "response"){
@@ -135,6 +131,9 @@ void MainWindow::UpdateInt(QJsonObject json)
         // une musique
         else if(json["name"] == "song"){
             // on traite les métadonnées
+            QJsonObject jsonTmp = json.value("data").toObject().value("taglib").toObject();
+            ui->lecture->setMaximum(jsonTmp.value("duration").toInt());
+            duree= jsonTmp.value("duration").toInt();
 
             // on traite l'image
             QImage coverQImg = imageFromJson(json.value("data").toObject().value("taglib").toObject().value("pictureData"));
@@ -191,6 +190,7 @@ void MainWindow::on_volume_valueChanged(int value)
     s->setVolumeMPV(value);
 }
 
+<<<<<<< HEAD
 /* encodage d'une image depuis JSON
  */
 QImage MainWindow::imageFromJson(const QJsonValue & val)
@@ -201,4 +201,22 @@ QImage MainWindow::imageFromJson(const QJsonValue & val)
   p.loadFromData(QByteArray::fromBase64(encoded), "PNG"); // convention = PNG = base64
 
   return p;
+=======
+void MainWindow::on_lecture_valueChanged(int value)
+{
+    if(click == 0)
+        s->setPositionMPV(value);
+    ui->current->setText(intToTimer(value));
+    ui->end->setText("-"+intToTimer(duree-value));
+}
+
+void MainWindow::on_lecture_sliderPressed()
+{
+    modif= 1;
+}
+
+void MainWindow::on_lecture_sliderReleased()
+{
+    modif= 0;
+>>>>>>> 2469cb33a39f8b94adfb29a72a29b4884d31ccce
 }

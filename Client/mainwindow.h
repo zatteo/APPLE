@@ -24,7 +24,6 @@ public:
     void UpdateInt(QJsonObject json);
 
 private slots:
-    void on_lecture_valueChanged(int value);
     void on_sound_2_released();
     void FPlay();
     void FPause();
@@ -34,6 +33,12 @@ private slots:
     QString intToTimer(int value);
 
     void on_volume_valueChanged(int value);
+
+    void on_lecture_valueChanged(int position);
+
+    void on_lecture_sliderPressed();
+
+    void on_lecture_sliderReleased();
 
 private:
     Ui::MainWindow *ui;

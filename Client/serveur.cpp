@@ -113,9 +113,9 @@ void Serveur::muteMPV(bool mute)
  */
 void Serveur::setPositionMPV(int position)
 {
-    QString positionFormatee = "+" + QString::number(position);
-
-    QJsonObject commandeMPV = buildACommand({"set_property", "start", positionFormatee});
+    QString positionFormatee = QString::number(position);
+    qDebug() << positionFormatee;
+    QJsonObject commandeMPV = buildACommand({"set_property", "time-pos", positionFormatee});
 
     send(commandeMPV);
 }
