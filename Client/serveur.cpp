@@ -23,9 +23,6 @@ void Serveur::connect(QString adresse)
 
     // on récupère l'état actuel du lecteur
     getCurrentStateMPV();
-
-    // on s'inscrit aux changements d'états pour gérer le multi-utilisateur
-    subscribeChangingStateMPV();
 }
 
 Serveur::~Serveur() {
@@ -37,6 +34,8 @@ Serveur::~Serveur() {
  */
 void Serveur::loadAndPlayMPV(QString nomDuFichier)
 {
+    // TODO : rien à faire ici
+
     // requête des métadonnées
     QJsonObject songParsed;
     songParsed["event"] = "request";
@@ -44,6 +43,14 @@ void Serveur::loadAndPlayMPV(QString nomDuFichier)
     songParsed["data"] = nomDuFichier;
 
     send(songParsed);
+
+    // requête de la pochette
+    QJsonObject songCoverParsed;
+    songCoverParsed["event"] = "request";
+    songCoverParsed["name"] = "cover";
+    songCoverParsed["data"] = nomDuFichier;
+
+    send(songCoverParsed);
 
     // requête de lancement de la musique
     QJsonObject commandeMPV = buildACommand({"loadfile", nomDuFichier});
@@ -265,17 +272,6 @@ void Serveur::requestAllRadios()
 void Serveur::getCurrentStateMPV()
 {
     // TODO : dépend de la machine à état
-}
-
-/* inscription aux changements d'états de MPV
-*/
-void Serveur::subscribeChangingStateMPV()
-{
-    send(buildACommand({"observe_property", 1, "pause"})); // play
-    send(buildACommand({"observe_property", 1, "volume"})); // volume
-    send(buildACommand({"observe_property", 1, "mute"})); // mute
-    send(buildACommand({"observe_property", 1, "start"})); // position manuelle
-    send(buildACommand({"observe_property", 1, "time-pos"}));
 }
 
 /* récupére la MainWindow

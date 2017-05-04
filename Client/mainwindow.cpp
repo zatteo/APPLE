@@ -181,12 +181,18 @@ void MainWindow::UpdateInt(QJsonObject json)
             QJsonObject jsonTmp = json.value("data").toObject().value("taglib").toObject();
             ui->lecture->setMaximum(jsonTmp.value("duration").toInt());
             duree= jsonTmp.value("duration").toInt();
+        }
+        // une pochette
+        else if(json["name"] == "cover")
+        {
+            // on traite la pochette
+            QImage coverQImg = imageFromJson(json["data"].toObject()["picture"]);
 
-            // on traite l'image
-            QImage coverQImg = imageFromJson(json.value("data").toObject().value("taglib").toObject().value("pictureData"));
-            QFile::remove("./cover.jpg");
-            coverQImg.save("cover.jpg", 0, 50);
-            ui->fond->setStyleSheet("background-image: url(\"./cover.jpg\");");
+            QString saveName = json["data"].toObject()["title"].toString() + ".jpg";
+
+            coverQImg.save(json["data"].toObject()["title"].toString() + ".jpg", 0, 50);
+
+            ui->fond->setStyleSheet("background-image: url(\"" + saveName + "\");");
         }
         // toutes les playlists
         else if(json["name"] == "playlists"){

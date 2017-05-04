@@ -48,7 +48,6 @@ private:
     QJsonObject buildACommand(QJsonArray arguments); // construit une commande JSON
     void send(QJsonObject json); // envoie un objet JSON au serveur central
     void getCurrentStateMPV(); // récupèration de l'état actuel du serveur central
-    void subscribeChangingStateMPV(); // inscription aux changements d'états du serveur central
     MainWindow *w;
 };
 
