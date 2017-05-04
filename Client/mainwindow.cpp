@@ -529,7 +529,7 @@ void MainWindow::on_liste_groupe_itemClicked(QListWidgetItem *item)
     }
     else{
         s->loadAndPlayAPlaylistMPV(item->text());
-        ui->liste_groupe->clear();
+        ui->liste_musique->clear();
         return;
     }
 
