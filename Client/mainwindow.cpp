@@ -76,14 +76,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->liste_musique->clear();
     ui->liste_groupe->clear();
-    add_liste_groupe("Titres");
-    add_liste_groupe("Radios");
-
-    s = new Serveur();
-    s->connect("/tmp/socketClient");
-    s->requestAllSongs();
-    s->requestAllPlaylists();
-    s->requestAllRadios();
 
     // traductions
 
@@ -102,12 +94,28 @@ MainWindow::MainWindow(QWidget *parent) :
 
     qDebug() << "Langue détecté :" << language;
 
-    updateLanguage(language);
-
     // traductions en dur pour une meilleure portabilité
 
     translations["FR"] = QJsonArray({"Options", "Langues", "À propos"});
     translations["EN"] = QJsonArray({"Options", "Languages", "About"});
+
+    updateLanguage(language);
+
+    if(language == "EN")
+    {
+        add_liste_groupe("Titles");
+    }
+    else
+    {
+        add_liste_groupe("Titres");
+    }
+    add_liste_groupe("Radios");
+
+    s = new Serveur();
+    s->connect("/tmp/socketClient");
+    s->requestAllSongs();
+    s->requestAllPlaylists();
+    s->requestAllRadios();
 }
 
 MainWindow::~MainWindow()
@@ -505,7 +513,7 @@ bool MainWindow::isCoverPresent(QString title)
 void MainWindow::on_liste_groupe_itemClicked(QListWidgetItem *item)
 {
     QJsonArray tab;
-    if(item->text() == "Titres"){
+    if(item->text() == "Titres" || item->text() == "Titles"){
         tab= songs;
         radio= 0;
     }
@@ -527,10 +535,23 @@ void MainWindow::updateLanguage(QString l)
     // on modifie l'état
     language = l;
 
-    // on met à jour l'interface
-    ui->menuParam_tres->setTitle(translations[l].toArray().at(0).toString());
-    ui->menuLangues->setTitle(translations[l].toArray().at(2).toString());
+    ui->menuParam_tres->setTitle(translations.value(l).toArray().at(0).toString());
+    ui->menuLangues->setTitle(translations[l].toArray().at(1).toString());
     ui->action_propos->setText(translations[l].toArray().at(2).toString());
+
+//    // on met à jour l'interface
+//    if(l == "EN")
+//    {
+//        ui->menuParam_tres->setTitle(translations.value("EN").toArray().at(0).toString());
+//        ui->menuLangues->setTitle(translations["EN"].toArray().at(1).toString());
+//        ui->action_propos->setText(translations["EN"].toArray().at(2).toString());
+//    }
+//    else
+//    {
+//        ui->menuParam_tres->setTitle(translations["FR"].toArray().at(0).toString());
+//        ui->menuLangues->setTitle(translations["FR"].toArray().at(1).toString());
+//        ui->action_propos->setText(translations["FR"].toArray().at(2).toString());
+//    }
 
     // on modifie le fichier de configuration
     QJsonObject newConfig;
