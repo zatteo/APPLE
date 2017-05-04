@@ -40,6 +40,7 @@ private:
     QJsonObject getTags(QString fileName);
     QJsonObject getCover(QString fileName);
     QJsonValue jsonValFromImage(const QImage & p);
+    void subscribeChangingStateMPV(); // inscription aux changements d'états du serveur central
 };
 
 #endif // SERVEURCENTRAL_H

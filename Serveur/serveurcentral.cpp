@@ -28,6 +28,7 @@ ServeurCentral::ServeurCentral(QObject *parent) : QObject(parent), socketMPV(new
 
     // on se connecte à MPV
     connect(socketMPV, "/tmp/socketMPV");
+    subscribeChangingStateMPV();
     QObject::connect(socketMPV, SIGNAL(readyRead()), this, SLOT(readSocketMPV()));
 }
 
@@ -427,4 +428,15 @@ QJsonValue ServeurCentral::jsonValFromImage(const QImage & p)
   auto encoded = buffer.data().toBase64(); // convention = base64
 
   return QJsonValue(QString::fromLatin1(encoded));
+}
+
+/* inscription aux changements d'états de MPV
+*/
+void ServeurCentral::subscribeChangingStateMPV()
+{
+    send(socketMPV, buildACommand({"observe_property", 1, "pause"})); // play
+    send(socketMPV, buildACommand({"observe_property", 2, "volume"})); // volume
+    send(socketMPV, buildACommand({"observe_property", 3, "mute"})); // mute
+    send(socketMPV, buildACommand({"observe_property", 4, "start"})); // position manuelle
+    send(socketMPV, buildACommand({"observe_property", 5, "time-pos"}));
 }

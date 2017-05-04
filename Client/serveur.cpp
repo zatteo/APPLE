@@ -277,17 +277,6 @@ void Serveur::getCurrentStateMPV()
     // TODO : dépend de la machine à état
 }
 
-/* inscription aux changements d'états de MPV
-*/
-void Serveur::subscribeChangingStateMPV()
-{
-    send(buildACommand({"observe_property", 1, "pause"})); // play
-    send(buildACommand({"observe_property", 1, "volume"})); // volume
-    send(buildACommand({"observe_property", 1, "mute"})); // mute
-    send(buildACommand({"observe_property", 1, "start"})); // position manuelle
-    send(buildACommand({"observe_property", 1, "time-pos"}));
-}
-
 /* récupére la MainWindow
  */
 void Serveur::setMainWindow(MainWindow *window)
