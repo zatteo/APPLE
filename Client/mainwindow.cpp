@@ -15,6 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    //timer pour savoir si on a un appui long ou court sur le bouton suivant/avance rapide
     timer= new QTimer(this);
     timer->setSingleShot(true);
     timer->setTimerType(Qt::PreciseTimer);
@@ -22,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->setupUi(this);
 
+    //etat de l'automate
     etat =new QStateMachine(this);
     start= new QState(etat);
     play= new QState(etat);
@@ -58,6 +60,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(play, SIGNAL(entered()), this, SLOT(FPause()));
     QObject::connect(pause, SIGNAL(entered()), this, SLOT(FPlay()));
 
+    QObject::connect(start, SIGNAL(entered()), this, SLOT(getInfo()));
     QObject::connect(next, SIGNAL(entered()), timer, SLOT(start()));
     QObject::connect(next, SIGNAL(exited()), this, SLOT(NextSong));
     QObject::connect(previous, SIGNAL(entered()), timer, SLOT(start()));
@@ -128,6 +131,9 @@ void MainWindow::NextSong(){
     }
 }
 
+void MainWindow::getInfo()
+{ s->getCurrentStateMPV(); }
+
 
 void MainWindow::UpdateInt(QJsonObject json)
 {
@@ -163,7 +169,11 @@ void MainWindow::UpdateInt(QJsonObject json)
                 click= 0;
             }
         }
+        else if(json["name"] == "filename"){
+            ui->Titre_2->setText(json["data"].toString());
+        }
     }
+
     if(json["event"] == "response"){
         // toutes les musiques
         if(json["name"] == "songs"){
@@ -207,6 +217,38 @@ void MainWindow::UpdateInt(QJsonObject json)
             // équivalent à songs mais avec les radios
         }
     }
+
+    if(json["error"] == "success")
+    {
+        if(json["request_id"] == 1)
+        {
+            if(json["data"] == true){
+                emit SPause();
+            }
+            else if(json["data"] == false){
+                emit SPlay();
+            }
+        }
+        else if(json["request_id"] ==2){
+            ui->Titre_2->setText(json["data"].toString());
+        }
+        if(json["request_id"] == 3){
+            if(json["data"] == true && mute == 1){
+                on_sound_2_released();
+            }
+            else if(json["data"] == false && mute == 0){
+                on_sound_2_released();
+            }
+        }
+        if(json["request_id"] == 4){
+            ui->volume->setValue(json["data"].toInt());
+        }
+    }
+}
+
+void MainWindow::UpdateLocal(QString title)
+{
+
 }
 
 void MainWindow::add_liste_musique(QString nom)

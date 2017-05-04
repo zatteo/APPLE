@@ -45,6 +45,7 @@ private slots:
     void RetourRapide();
     void AvanceNormal();
     void NextSong();
+    void getInfo();
 
 private:
     Ui::MainWindow *ui;

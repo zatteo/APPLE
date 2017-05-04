@@ -271,7 +271,21 @@ void Serveur::requestAllRadios()
  */
 void Serveur::getCurrentStateMPV()
 {
-    // TODO : dépend de la machine à état
+    QJsonObject jsonPause = buildACommand({"get_property", "pause"});
+    jsonPause["request_id"] = 1;
+    send(jsonPause);
+
+    QJsonObject jsonFilename = buildACommand({"get_property", "filename"});
+    jsonFilename["request_id"] = 2;
+    send(jsonFilename);
+
+    QJsonObject jsonMute = buildACommand({"get_property", "mute"});
+    jsonMute["request_id"] = 3;
+    send(jsonMute);
+
+    QJsonObject jsonVolume = buildACommand({"get_property", "volume"});
+    jsonVolume["request_id"] = 4;
+    send(jsonVolume);
 }
 
 /* récupére la MainWindow
