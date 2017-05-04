@@ -53,6 +53,7 @@ private:
 
 signals:
     void SPlay();
+    void SPause();
 };
 
 #endif // MAINWINDOW_H

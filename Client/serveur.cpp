@@ -45,8 +45,6 @@ void Serveur::loadAndPlayMPV(QString nomDuFichier)
 
     send(songParsed);
 
-    setVitesseAvantRapide();
-
     // requête de lancement de la musique
     QJsonObject commandeMPV = buildACommand({"loadfile", nomDuFichier});
 

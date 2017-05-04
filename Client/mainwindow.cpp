@@ -5,6 +5,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QTimer>
+#include <QFile>
 
 int mute=1; //mute = 0
 int duree=0;
@@ -31,12 +32,14 @@ MainWindow::MainWindow(QWidget *parent) :
     retour_rapide= new QState(etat);
     next= new QState(etat);
     previous= new QState(etat);
+
     start->addTransition(this, SIGNAL(SPlay()), play);
-    start->addTransition(ui->liste_musique, SIGNAL(doubleClicked(QModelIndex)), play);
+    start->addTransition(this, SIGNAL(SPause()), pause);
 
     play->addTransition(ui->next_2, SIGNAL(pressed()), next);
     play->addTransition(ui->previous_2, SIGNAL(pressed()), previous);
     play->addTransition(ui->play_2, SIGNAL(clicked()), pause);
+    play->addTransition(this, SIGNAL(SPause()), pause);
 
     next->addTransition(ui->next_2, SIGNAL(released()), play);
     previous->addTransition(ui->previous_2, SIGNAL(released()), play);
@@ -47,6 +50,8 @@ MainWindow::MainWindow(QWidget *parent) :
     avance_rapide->addTransition(ui->next_2, SIGNAL(released()), play);
     retour_rapide->addTransition(ui->previous_2, SIGNAL(released()), play);
     pause->addTransition(ui->play_2, SIGNAL(clicked()), play);
+    pause->addTransition(this, SIGNAL(SPlay()), play);
+
 
     // QObject::connect(start, SIGNAL(entered()), this, SLOT(getInfo()));
     QObject::connect(play, SIGNAL(entered()), this, SLOT(FPause()));
@@ -122,6 +127,14 @@ void MainWindow::UpdateInt(QJsonObject json)
                 on_sound_2_released();
             }
         }
+        else if(json["name"] == "pause"){
+            if(json["data"] == true){
+                emit SPause();
+            }
+            else if(json["data"] == false){
+                emit SPlay();
+            }
+        }
         else if(json["name"] == "time-pos"){
             if(modif == 0)
             {
@@ -152,8 +165,9 @@ void MainWindow::UpdateInt(QJsonObject json)
 
             // on traite l'image
             QImage coverQImg = imageFromJson(json.value("data").toObject().value("taglib").toObject().value("pictureData"));
-
+            QFile::remove("./cover.jpg");
             coverQImg.save("cover.jpg", 0, 50);
+            ui->fond->setStyleSheet("background-image: url(\"./cover.jpg\");");
         }
         // toutes les playlists
         else if(json["name"] == "playlists"){
