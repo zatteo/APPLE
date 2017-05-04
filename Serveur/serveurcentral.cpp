@@ -242,8 +242,6 @@ void ServeurCentral::coverRequested(QLocalSocket *socket, QString title)
             coverParsed["data"] = currentSong["cover"];
 
             send(socket, coverParsed);
-
-            qDebug() << "coverParsed :" << coverParsed;
         }
     }
 }
@@ -407,7 +405,7 @@ QJsonObject ServeurCentral::getCover(QString fileName)
 
         QFileInfo fileInfo(fileName);
 
-        newCover["title"] = fileInfo.completeBaseName();
+        newCover["title"] = fileInfo.fileName();
         newCover["cover"] = jsonValFromImage(coverQImg);
     }
 

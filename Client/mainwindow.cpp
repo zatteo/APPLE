@@ -5,6 +5,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QFile>
+#include <QFileInfo>
 
 int mute=1; //mute = 0
 int duree=0;
@@ -62,7 +63,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QObject::connect(start, SIGNAL(entered()), this, SLOT(getInfo()));
     QObject::connect(next, SIGNAL(entered()), timer, SLOT(start()));
-    QObject::connect(next, SIGNAL(exited()), this, SLOT(NextSong));
+    QObject::connect(next, SIGNAL(exited()), this, SLOT(NextSong()));
     QObject::connect(previous, SIGNAL(entered()), timer, SLOT(start()));
     QObject::connect(avance_rapide, SIGNAL(entered()), this, SLOT(AvanceRapide()));
     QObject::connect(avance_rapide, SIGNAL(exited()), this, SLOT(AvanceNormal()));
@@ -115,7 +116,8 @@ void MainWindow::FPause()
 
 void MainWindow::Update(QListWidgetItem * item)
 {
-    ui->Titre_2->setText(item->text());
+//    ui->Titre_2->setText(item->text());
+    UpdateLocal(item->text());
     s->loadAndPlayMPV(item->text()); // charge un fichier et lance la lecture sur le serveur central
 }
 
@@ -175,6 +177,8 @@ void MainWindow::UpdateInt(QJsonObject json)
     }
 
     if(json["event"] == "response"){
+
+        qDebug() << "YOLO" << json;
         // toutes les musiques
         if(json["name"] == "songs"){
             int i;
@@ -190,7 +194,7 @@ void MainWindow::UpdateInt(QJsonObject json)
             // on traite les métadonnées
             QJsonObject jsonTmp = json["data"].toObject()["taglib"].toObject();
 
-            songsAddTaglib(json["data"].toObject()["title"].toString() , jsonTmp);
+            songsAddTaglib(json["data"].toObject()["title"].toString(), jsonTmp);
 
             ui->lecture->setMaximum(jsonTmp.value("duration").toInt());
             duree= jsonTmp.value("duration").toInt();
@@ -201,12 +205,15 @@ void MainWindow::UpdateInt(QJsonObject json)
             // on enregistre la pochette
             QImage coverQImg = imageFromJson(json["data"].toObject()["cover"]);
 
-            QString saveName = json["data"].toObject()["title"].toString() + ".jpg";
+            QString fileName = json["data"].toObject()["title"].toString();
+            QFileInfo fileInfo(fileName);
 
-            coverQImg.save(json["data"].toObject()["title"].toString() + ".jpg", 0, 50);
+            QString saveName = fileInfo.completeBaseName() + ".jpg";
+
+            coverQImg.save(saveName, 0, 50);
 
             // on ajoute la pochette dans notre base locale
-            songsAddCover(json["data"].toObject()["title"].toString(), saveName);
+            songsAddCover(fileName, saveName);
 
             ui->fond->setStyleSheet("background-image: url(\"" + saveName + "\");");
         }
@@ -257,18 +264,19 @@ void MainWindow::UpdateInt(QJsonObject json)
  */
 void MainWindow::UpdateLocal(QString title)
 {
-//    QJsonObject
+    QJsonObject currentSongToPrint;
 
-//    for(int i = 0; i < songs.size(); i++)
-//    {
-//        if(songs.at(i).toObject()["title"].toString() == title)
-//        {
-//             songs.at(i).toObject().contains("cover");
-//        }
-//    }
+    for(int i = 0; i < songs.size(); i++)
+    {
+        if(songs.at(i).toObject()["title"].toString() == title)
+        {
+             currentSongToPrint = songs.at(i).toObject();
+        }
+    }
 
-//    ui->fond->setStyleSheet("background-image: url(\"" + saveName + "\");");
+    ui->Titre_2->setText(currentSongToPrint["title"].toString());
 
+    ui->fond->setStyleSheet("background-image: url(\"" + currentSongToPrint["saveName"].toString() + "\");");
 }
 
 void MainWindow::add_liste_musique(QString nom)
@@ -361,6 +369,8 @@ QJsonArray MainWindow::getRadios()
  */
 void MainWindow::songsAddTaglib(QString title, QJsonObject taglib)
 {
+    qDebug() << "songsAddTaglib :" << title << "-" << taglib;
+
     for(int i = 0; i < songs.size(); i++)
     {
         if(songs.at(i).toObject()["title"].toString() == title)
@@ -380,10 +390,14 @@ void MainWindow::songsAddTaglib(QString title, QJsonObject taglib)
  */
 void MainWindow::songsAddCover(QString title, QString saveName)
 {
+    qDebug() << "songsAddCover :" << title << "-" << saveName;
+
     for(int i = 0; i < songs.size(); i++)
     {
         if(songs.at(i).toObject()["title"].toString() == title)
         {
+            qDebug() << "Ajout de" << saveName << "pour" << title;
+
             QJsonObject songWithoutCover = songs.at(i).toObject();
 
             songWithoutCover["saveName"] = saveName;
@@ -402,10 +416,12 @@ bool MainWindow::isTaglibPresent(QString title)
     {
         if(songs.at(i).toObject()["title"].toString() == title)
         {
+            qDebug() << title << "isTaglibPresent" << songs.at(i).toObject().contains("taglib");
             return songs.at(i).toObject().contains("taglib");
         }
     }
 
+    qDebug() << title << "isTaglibPresent fin de fonction";
     return false;
 }
 
@@ -418,9 +434,11 @@ bool MainWindow::isCoverPresent(QString title)
     {
         if(songs.at(i).toObject()["title"].toString() == title)
         {
-            return songs.at(i).toObject().contains("cover");
+            qDebug() << title << "isCoverPresent" << songs.at(i).toObject().contains("saveName");
+            return songs.at(i).toObject().contains("saveName");
         }
     }
 
+    qDebug() << title << "isCoverPresent fin de fonction";
     return false;
 }

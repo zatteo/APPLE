@@ -37,6 +37,8 @@ void Serveur::loadAndPlayMPV(QString nomDuFichier)
     // si metadata pas dans songs, on la demande
     if(!w->isTaglibPresent(nomDuFichier))
     {
+        qDebug() << nomDuFichier;
+
         // requête des métadonnées
         QJsonObject songParsed;
         songParsed["event"] = "request";
@@ -49,6 +51,7 @@ void Serveur::loadAndPlayMPV(QString nomDuFichier)
     // si cover pas dans songs, on la demande
     if(!w->isCoverPresent(nomDuFichier))
     {
+        qDebug() << nomDuFichier;
         // requête de la pochette
         QJsonObject songCoverParsed;
         songCoverParsed["event"] = "request";
@@ -277,9 +280,6 @@ void Serveur::requestAllRadios()
  */
 void Serveur::getCurrentStateMPV()
 {
-<<<<<<< HEAD
-
-=======
     QJsonObject jsonPause = buildACommand({"get_property", "pause"});
     jsonPause["request_id"] = 1;
     send(jsonPause);
@@ -295,7 +295,6 @@ void Serveur::getCurrentStateMPV()
     QJsonObject jsonVolume = buildACommand({"get_property", "volume"});
     jsonVolume["request_id"] = 4;
     send(jsonVolume);
->>>>>>> 1b7e0aa0e8b6506b5868caa5504dcffb070bf161
 }
 
 /* récupére la MainWindow
