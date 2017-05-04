@@ -47,8 +47,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     avance_rapide->addTransition(ui->next_2, SIGNAL(released()), play);
     retour_rapide->addTransition(ui->previous_2, SIGNAL(released()), play);
+
     pause->addTransition(ui->play_2, SIGNAL(clicked()), play);
     pause->addTransition(this, SIGNAL(SPlay()), play);
+    pause->addTransition(ui->next_2, SIGNAL(pressed()), next);
+    pause->addTransition(ui->previous_2, SIGNAL(pressed()), previous);
 
 
     // QObject::connect(start, SIGNAL(entered()), this, SLOT(getInfo()));
@@ -56,6 +59,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(pause, SIGNAL(entered()), this, SLOT(FPlay()));
 
     QObject::connect(next, SIGNAL(entered()), timer, SLOT(start()));
+    QObject::connect(next, SIGNAL(exited()), this, SLOT(NextSong));
     QObject::connect(previous, SIGNAL(entered()), timer, SLOT(start()));
     QObject::connect(avance_rapide, SIGNAL(entered()), this, SLOT(AvanceRapide()));
     QObject::connect(avance_rapide, SIGNAL(exited()), this, SLOT(AvanceNormal()));
@@ -117,6 +121,13 @@ void MainWindow::AvanceNormal()
 { s->setVitesseNormale(); }
 void MainWindow::RetourRapide()
 { s->setVitesseArriereRapide(); }
+void MainWindow::NextSong(){
+    if(timer->isActive()){
+        timer->stop();
+        s->next(ui->Titre_2->text());
+    }
+}
+
 
 void MainWindow::UpdateInt(QJsonObject json)
 {
