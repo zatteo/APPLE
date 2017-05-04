@@ -52,11 +52,11 @@ private slots:
     void on_lecture_sliderPressed();
     void on_lecture_sliderReleased();
     void AvanceRapide();
-    void RetourRapide();
     void AvanceNormal();
     void NextSong();
     void PreviousSong();
     void getInfo();
+    void back();
 
     void on_liste_groupe_itemClicked(QListWidgetItem *item);
 

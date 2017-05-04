@@ -12,11 +12,11 @@
 #include <QFileInfo>
 #include <QDir>
 
+
 int mute=1; //mute = 0
 int duree=0;
 int click= 0, modif=0;
 int radio=0;
-
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -63,17 +63,25 @@ MainWindow::MainWindow(QWidget *parent) :
     pause->addTransition(ui->next_2, SIGNAL(pressed()), next);
     pause->addTransition(ui->previous_2, SIGNAL(pressed()), previous);
 
+    retour_rapide->addTransition(timer, SIGNAL(timeout()), retour_rapide);
 
     QObject::connect(play, SIGNAL(entered()), this, SLOT(FPause()));
     QObject::connect(pause, SIGNAL(entered()), this, SLOT(FPlay()));
 
     QObject::connect(start, SIGNAL(entered()), this, SLOT(getInfo()));
+
     QObject::connect(next, SIGNAL(entered()), timer, SLOT(start()));
     QObject::connect(next, SIGNAL(exited()), this, SLOT(NextSong()));
+
     QObject::connect(previous, SIGNAL(entered()), timer, SLOT(start()));
     QObject::connect(previous, SIGNAL(exited()), this, SLOT(PreviousSong()));
+
     QObject::connect(avance_rapide, SIGNAL(entered()), this, SLOT(AvanceRapide()));
     QObject::connect(avance_rapide, SIGNAL(exited()), this, SLOT(AvanceNormal()));
+
+    QObject::connect(retour_rapide, SIGNAL(entered()), timer, SLOT(start()));
+    QObject::connect(retour_rapide, SIGNAL(entered()), this, SLOT(back()));
+
     QObject::connect(ui->liste_musique, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(Update(QListWidgetItem*)));
 
     etat->setInitialState(start);
@@ -157,6 +165,17 @@ void MainWindow::FPause()
     ui->play_2->setIcon(ButtonIcon);
 }
 
+void MainWindow::back()
+{
+    timer->start();
+    int value= ui->lecture->value();
+    value= value -10;
+    if(value > 0)
+        s->setPositionMPV(value);
+    else
+        s->setPositionMPV(0);
+}
+
 //Update le titre et lance la musique
 void MainWindow::Update(QListWidgetItem * item)
 {
@@ -184,8 +203,6 @@ void MainWindow::AvanceRapide()
 { s->setVitesseAvantRapide(); }
 void MainWindow::AvanceNormal()
 { s->setVitesseNormale(); }
-void MainWindow::RetourRapide()
-{ s->setVitesseArriereRapide(); }
 void MainWindow::NextSong(){
     if(timer->isActive()){
         timer->stop();
@@ -195,7 +212,6 @@ void MainWindow::NextSong(){
 void MainWindow::PreviousSong(){
     if(timer->isActive()){
         timer->stop();
-        qDebug() << "ohjohouhohio";
         s->previous(ui->Titre_2->text());
     }
 }

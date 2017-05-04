@@ -193,15 +193,6 @@ void Serveur::setVitesseAvantRapide()
     send(commandeMPV);
 }
 
-/* passe en mode retour rapide
- */
-void Serveur::setVitesseArriereRapide()
-{
-    QJsonObject commandeMPV = buildACommand({"set_property", "speed", 0.5});
-
-    send(commandeMPV);
-}
-
 /* passe en mode vitesse normale
  */
 void Serveur::setVitesseNormale()
