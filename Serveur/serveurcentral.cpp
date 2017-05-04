@@ -451,12 +451,14 @@ void ServeurCentral::subscribeChangingStateMPV()
 // récupération des morceaux d'une playlist
 void ServeurCentral::playlistRequested(QLocalSocket *socket, QString playlist)
 {
-    QString playlistPath = songsPath + playlist;
+    QString playlistPath = songsPath + "/" + playlist;
 
     QJsonObject response;
     response["event"] = "response";
     response["name"] = "playlist";
     QJsonArray responseArray;
+
+    qDebug() << playlistPath;
 
     QFile inputFile(playlistPath);
     if(inputFile.open(QIODevice::ReadOnly))
@@ -465,9 +467,9 @@ void ServeurCentral::playlistRequested(QLocalSocket *socket, QString playlist)
        while (!in.atEnd())
        {
           QString line = in.readLine();
-          if(line.startsWith("#EXTINF:"))
+          if(!line.startsWith("#EXT"))
           {
-            QString tmp = line.section(',', 1);
+            QString tmp = line.section('/', -1);
             responseArray.append(tmp);
           }
        }
