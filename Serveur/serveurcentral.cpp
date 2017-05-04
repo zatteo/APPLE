@@ -11,6 +11,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QDir>
+#include <QFile>
 #include <QImage>
 #include <QBuffer>
 
@@ -92,7 +93,8 @@ void ServeurCentral::readSocketClient()
         if(retourClient["event"].toString() == "request")
         {            
             // on renvoie la réponse au client qui demande des informations
-            if(retourClient["name"].toString() == "songs")
+
+            if(retourClient["name"].toString() == "songs") // liste des musiques demandées
             {
                 // on formate la requête de réponse
                 QJsonObject songsParsed;
@@ -102,7 +104,7 @@ void ServeurCentral::readSocketClient()
 
                 send(socket, songsParsed);
             }
-            else if(retourClient["name"].toString() == "playlists")
+            else if(retourClient["name"].toString() == "playlists") // liste des playlists demandées
             {
                 // on formate la requête de réponse
                 QJsonObject playlistsParsed;
@@ -112,7 +114,7 @@ void ServeurCentral::readSocketClient()
 
                 send(socket, playlistsParsed);
             }
-            else if(retourClient["name"].toString() == "radios")
+            else if(retourClient["name"].toString() == "radios") // liste des radios demandées
             {
                 // on formate la requête de réponse
                 QJsonObject radiosParsed;
@@ -122,12 +124,14 @@ void ServeurCentral::readSocketClient()
 
                 send(socket, radiosParsed);
             }
-            else if(retourClient["name"].toString() == "song")
+            else if(retourClient["name"].toString() == "song") // demande des métadonnées d'un morceau
             {
                 songRequested(socket, retourClient["data"].toString());
             }
-
-            qDebug() << "1";
+            else if(retourClient["name"].toString() == "cover") // demande de la pochette d'un morceau
+            {
+                coverRequested(socket, retourClient["data"].toString());
+            }
         }
         else
         {
@@ -174,8 +178,6 @@ void ServeurCentral::readSocketMPV()
  */
 void ServeurCentral::songRequested(QLocalSocket *socket, QString title)
 {
-    qDebug() << "songRequested" << title;
-
     // on vérifie si le morceau est dans la liste
     for(int i = 0; i < songs.size(); i++)
     {
@@ -186,7 +188,7 @@ void ServeurCentral::songRequested(QLocalSocket *socket, QString title)
             // on construit le chemin local du morceau
             QString newPath = songsPath + "/" + currentSong.value("title").toString();
 
-            // on récupère les métadonnées et on les insère dans le morceau
+            // on récupère les métadonnées et on les insère dans le morceau si elles existent pas
             if(currentSong.value("taglib") == QJsonValue::Undefined)
             {
                 QJsonObject newTags = getTags(newPath);
@@ -202,10 +204,45 @@ void ServeurCentral::songRequested(QLocalSocket *socket, QString title)
 
             send(socket, songParsed);
 
-            qDebug() << songParsed;
+            qDebug() << "songParsed :" << songParsed;
 
             // on lance la musique
             send(socketMPV, buildACommand({"loadfile", newPath}));
+        }
+    }
+}
+
+/* requête pour la pochette
+ */
+void ServeurCentral::coverRequested(QLocalSocket *socket, QString title)
+{
+    // on vérifie si le morceau est dans la liste
+    for(int i = 0; i < songs.size(); i++)
+    {
+        QJsonObject currentSong = songs.at(i).toObject();
+
+        if(currentSong["title"].toString() == title)
+        {
+            // on construit le chemin local du morceau
+            QString newPath = songsPath + "/" + currentSong.value("title").toString();
+
+            // on récupère la cover et on les insère dans le morceau si elle existe pas
+            if(currentSong.value("cover") == QJsonValue::Undefined)
+            {
+                QJsonObject newCover = getCover(newPath);
+                currentSong["cover"] = newCover;
+                songs.replace(i, currentSong);
+            }
+
+            // on formate la réponse et on envoie la cover
+            QJsonObject coverParsed;
+            coverParsed["event"] = "response";
+            coverParsed["name"] = "cover";
+            coverParsed["data"] = currentSong["cover"];
+
+            send(socket, coverParsed);
+
+            qDebug() << "coverParsed :" << coverParsed;
         }
     }
 }
@@ -227,8 +264,6 @@ QJsonObject ServeurCentral::buildACommand(QJsonArray arguments)
  */
 void ServeurCentral::send(QLocalSocket *socket, QJsonObject json)
 {
-    qDebug() << "envoi de : " << json;
-
     QByteArray bytes = QJsonDocument(json).toJson(QJsonDocument::Compact) + "\n";
     if(socket != NULL) {
       socket->write(bytes.data(), bytes.length());
@@ -318,7 +353,8 @@ bool ServeurCentral::isValidPlaylist(QString radio)
     }
 }
 
-
+/* utilise taglib pour récupérer les métadonnées
+ */
 QJsonObject ServeurCentral::getTags(QString fileName)
 {
     QJsonObject newTags;
@@ -339,6 +375,15 @@ QJsonObject ServeurCentral::getTags(QString fileName)
 
     newTags["duration"] = f.audioProperties()->lengthInSeconds();
 
+    return newTags;
+}
+
+/* utilise taglib pour récupérer la cover
+ */
+QJsonObject ServeurCentral::getCover(QString fileName)
+{
+    QJsonObject newCover;
+
     // on récupère la cover
     if(fileName.endsWith(".mp3"))
     {
@@ -349,7 +394,7 @@ QJsonObject ServeurCentral::getTags(QString fileName)
         // s'il y a aucune image, on s'arrête
         if(frameList.isEmpty())
         {
-           return newTags;
+           return newCover;
         }
 
         TagLib::ID3v2::AttachedPictureFrame *coverImg = static_cast<TagLib::ID3v2::AttachedPictureFrame *>(frameList.front());
@@ -359,10 +404,13 @@ QJsonObject ServeurCentral::getTags(QString fileName)
         coverQImg.loadFromData((const uchar *) coverImg->picture().data(), coverImg->picture().size());
         coverQImg = coverQImg.scaled(100, 100, Qt::KeepAspectRatio);
 
-        newTags["pictureData"] = jsonValFromImage(coverQImg);
+        QFileInfo fileInfo(fileName);
+
+        newCover["title"] = fileInfo.completeBaseName();
+        newCover["picture"] = jsonValFromImage(coverQImg);
     }
 
-    return newTags;
+    return newCover;
 }
 
 /* encodage d'une image pour JSON

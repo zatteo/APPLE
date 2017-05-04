@@ -37,6 +37,8 @@ Serveur::~Serveur() {
  */
 void Serveur::loadAndPlayMPV(QString nomDuFichier)
 {
+    // TODO : rien à faire ici
+
     // requête des métadonnées
     QJsonObject songParsed;
     songParsed["event"] = "request";
@@ -44,6 +46,14 @@ void Serveur::loadAndPlayMPV(QString nomDuFichier)
     songParsed["data"] = nomDuFichier;
 
     send(songParsed);
+
+    // requête de la pochette
+    QJsonObject songCoverParsed;
+    songCoverParsed["event"] = "request";
+    songCoverParsed["name"] = "cover";
+    songCoverParsed["data"] = nomDuFichier;
+
+    send(songCoverParsed);
 
     // requête de lancement de la musique
     QJsonObject commandeMPV = buildACommand({"loadfile", nomDuFichier});

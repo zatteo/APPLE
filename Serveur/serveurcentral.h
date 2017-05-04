@@ -33,10 +33,12 @@ private:
     QJsonObject buildACommand(QJsonArray arguments); // construit une commande JSON
     void send(QLocalSocket *socket, QJsonObject json); // envoie un objet JSON
     void songRequested(QLocalSocket *socket, QString title);
+    void coverRequested(QLocalSocket *socket, QString title);
     void loadLocalFiles();
     bool isValidSong(QString song); // vérifie si le nom du fichier correspond à une musique
     bool isValidPlaylist(QString radio); // vérifie si le nom du fichier correspond à une musique
     QJsonObject getTags(QString fileName);
+    QJsonObject getCover(QString fileName);
     QJsonValue jsonValFromImage(const QImage & p);
 };
 

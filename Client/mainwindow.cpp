@@ -151,11 +151,19 @@ void MainWindow::UpdateInt(QJsonObject json)
             QJsonObject jsonTmp = json.value("data").toObject().value("taglib").toObject();
             ui->lecture->setMaximum(jsonTmp.value("duration").toInt());
             duree= jsonTmp.value("duration").toInt();
+        }
+        // une pochette
+        else if(json["name"] == "cover")
+        {
+            qDebug() << "enregistrement de l'image oklm";
 
-            // on traite l'image
-            QImage coverQImg = imageFromJson(json.value("data").toObject().value("taglib").toObject().value("pictureData"));
+            // on traite la pochette
+            QImage coverQImg = imageFromJson(json["data"].toObject()["picture"]);
 
-            coverQImg.save("cover.jpg", 0, 50);
+            QString saveName = json["data"].toObject()["title"].toString() + ".jpg";
+
+                qDebug() << saveName;
+            coverQImg.save(json["data"].toObject()["title"].toString() + ".jpg", 0, 50);
         }
         // toutes les playlists
         else if(json["name"] == "playlists"){
