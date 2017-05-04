@@ -8,7 +8,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QTimer>
-
+#include <QTranslator>
 
 namespace Ui {
     class MainWindow;
@@ -55,6 +55,10 @@ private slots:
 
     void on_liste_groupe_itemClicked(QListWidgetItem *item);
 
+    void on_actionFrances_triggered();
+
+    void on_actionEnglish_triggered();
+
 private:
     Ui::MainWindow *ui;
     Serveur * s;
@@ -78,6 +82,13 @@ private:
 
     void songsAddTaglib(QString title, QJsonObject taglib);
     void songsAddCover(QString title, QString saveName);
+
+    // i18n
+
+    QString language; // "FR" || "EN"
+    QJsonObject translations;
+
+    void updateLanguage(QString language);
 
 signals:
     void SPlay();
