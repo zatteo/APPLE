@@ -128,7 +128,6 @@ void MainWindow::NextSong(){
     }
 }
 
-
 void MainWindow::UpdateInt(QJsonObject json)
 {
     if(json["event"] == "property-change"){
@@ -178,19 +177,25 @@ void MainWindow::UpdateInt(QJsonObject json)
         // une musique
         else if(json["name"] == "song"){
             // on traite les métadonnées
-            QJsonObject jsonTmp = json.value("data").toObject().value("taglib").toObject();
+            QJsonObject jsonTmp = json["data"].toObject()["taglib"].toObject();
+
+            songsAddTaglib(json["data"].toObject()["title"].toString() , jsonTmp);
+
             ui->lecture->setMaximum(jsonTmp.value("duration").toInt());
             duree= jsonTmp.value("duration").toInt();
         }
         // une pochette
         else if(json["name"] == "cover")
         {
-            // on traite la pochette
-            QImage coverQImg = imageFromJson(json["data"].toObject()["picture"]);
+            // on enregistre la pochette
+            QImage coverQImg = imageFromJson(json["data"].toObject()["cover"]);
 
             QString saveName = json["data"].toObject()["title"].toString() + ".jpg";
 
             coverQImg.save(json["data"].toObject()["title"].toString() + ".jpg", 0, 50);
+
+            // on ajoute la pochette dans notre base locale
+            songsAddCover(json["data"].toObject()["title"].toString(), saveName);
 
             ui->fond->setStyleSheet("background-image: url(\"" + saveName + "\");");
         }
@@ -293,3 +298,72 @@ QJsonArray MainWindow::getRadios()
     return radios;
 }
 
+/* on ajoute les métadonnées du morceau dans songs
+ * QString title : le morceau
+ * QString taglib : taglib
+ */
+void MainWindow::songsAddTaglib(QString title, QJsonObject taglib)
+{
+    for(int i = 0; i < songs.size(); i++)
+    {
+        if(songs.at(i).toObject()["title"].toString() == title)
+        {
+            QJsonObject songWithoutTaglib = songs.at(i).toObject();
+
+            songWithoutTaglib["taglib"] = taglib;
+
+            songs.replace(i, songWithoutTaglib);
+        }
+    }
+}
+
+/* on ajoute le chemin de la pochette du morceau dans songs
+ * QString title : le morceau
+ * QString saveName : le chemin de la pochette
+ */
+void MainWindow::songsAddCover(QString title, QString saveName)
+{
+    for(int i = 0; i < songs.size(); i++)
+    {
+        if(songs.at(i).toObject()["title"].toString() == title)
+        {
+            QJsonObject songWithoutCover = songs.at(i).toObject();
+
+            songWithoutCover["saveName"] = saveName;
+
+            songs.replace(i, songWithoutCover);
+        }
+    }
+}
+
+/* vérifie si un morceau possède déjà des métadonnées
+ * QString title : le morceau à vérifier
+ */
+bool MainWindow::isTaglibPresent(QString title)
+{
+    for(int i = 0; i < songs.size(); i++)
+    {
+        if(songs.at(i).toObject()["title"].toString() == title)
+        {
+            return songs.at(i).toObject().contains("taglib");
+        }
+    }
+
+    return false;
+}
+
+/* vérifie si un morceau possède déjà une pochette
+ * QString title : le morceau à vérifier
+ */
+bool MainWindow::isCoverPresent(QString title)
+{
+    for(int i = 0; i < songs.size(); i++)
+    {
+        if(songs.at(i).toObject()["title"].toString() == title)
+        {
+            return songs.at(i).toObject().contains("cover");
+        }
+    }
+
+    return false;
+}

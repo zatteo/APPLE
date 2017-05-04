@@ -408,7 +408,7 @@ QJsonObject ServeurCentral::getCover(QString fileName)
         QFileInfo fileInfo(fileName);
 
         newCover["title"] = fileInfo.completeBaseName();
-        newCover["picture"] = jsonValFromImage(coverQImg);
+        newCover["cover"] = jsonValFromImage(coverQImg);
     }
 
     return newCover;
@@ -437,7 +437,7 @@ void ServeurCentral::subscribeChangingStateMPV()
     send(socketMPV, buildACommand({"observe_property", 1, "pause"})); // play
     send(socketMPV, buildACommand({"observe_property", 2, "volume"})); // volume
     send(socketMPV, buildACommand({"observe_property", 3, "mute"})); // mute
-    send(socketMPV, buildACommand({"observe_property", 4, "start"})); // position manuelle
+    send(socketMPV, buildACommand({"observe_property", 4, "start"})); // utile ?
     send(socketMPV, buildACommand({"observe_property", 5, "time-pos"}));
     send(socketMPV, buildACommand({"observe_property", 6, "filename"}));
 }

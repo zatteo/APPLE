@@ -29,6 +29,9 @@ public:
     QJsonArray getPlaylists();
     QJsonArray getRadios();
 
+    bool isTaglibPresent(QString title);
+    bool isCoverPresent(QString title);
+
 private slots:
     void on_sound_2_released();
     void FPlay();
@@ -64,6 +67,9 @@ private:
     QJsonArray songs; // liste des morceaux
     QJsonArray playlists; // liste des playlists
     QJsonArray radios; // liste des radios
+
+    void songsAddTaglib(QString title, QJsonObject taglib);
+    void songsAddCover(QString title, QString saveName);
 
 signals:
     void SPlay();
