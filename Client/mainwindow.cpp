@@ -6,6 +6,7 @@
 #include <QJsonDocument>
 #include <QFile>
 #include <QFileInfo>
+#include <QDir>
 
 int mute=1; //mute = 0
 int duree=0;
@@ -83,6 +84,30 @@ MainWindow::MainWindow(QWidget *parent) :
     s->requestAllSongs();
     s->requestAllPlaylists();
     s->requestAllRadios();
+
+    // traductions
+
+    QString configPath = QDir::homePath() + "/.apple.json";
+    QFile jsonFile(configPath);
+    if(!jsonFile.open(QFile::ReadOnly))
+    {
+        // crée le fichier et passe en français par défaut
+        updateLanguage("FR");
+    }
+    else
+    {
+        QJsonDocument d = QJsonDocument().fromJson(jsonFile.readAll());
+        language = d.object().value("language").toString();
+    }
+
+    qDebug() << "Langue détecté :" << language;
+
+    updateLanguage(language);
+
+    // traductions en dur pour une meilleure portabilité
+
+    translations["FR"] = QJsonArray({"Options", "Langues", "À propos"});
+    translations["EN"] = QJsonArray({"Options", "Languages", "About"});
 }
 
 MainWindow::~MainWindow()
@@ -191,7 +216,6 @@ void MainWindow::UpdateInt(QJsonObject json)
         qDebug() << "YOLO" << json;
         // toutes les musiques
         if(json["name"] == "songs"){
-            int i;
             songs = json["data"].toArray();
         }
         // une musique
@@ -468,4 +492,37 @@ void MainWindow::on_liste_groupe_itemClicked(QListWidgetItem *item)
     for(i=0; i< tab.size(); i++){
         add_liste_musique(tab.at(i).toObject().value("title").toString());
     }
+}
+
+void MainWindow::updateLanguage(QString l)
+{
+    // on modifie l'état
+    language = l;
+
+    // on met à jour l'interface
+    ui->menuParam_tres->setTitle(translations[l].toArray().at(0).toString());
+    ui->menuLangues->setTitle(translations[l].toArray().at(2).toString());
+    ui->action_propos->setText(translations[l].toArray().at(2).toString());
+
+    // on modifie le fichier de configuration
+    QJsonObject newConfig;
+    newConfig["language"] = l;
+
+    QJsonDocument document(newConfig);
+
+    QString configPath = QDir::homePath() + "/.apple.json";
+
+    QFile newFileConfig(configPath);
+    newFileConfig.open(QFile::WriteOnly);
+    newFileConfig.write(document.toJson());
+}
+
+void MainWindow::on_actionFrances_triggered()
+{
+    updateLanguage("FR");
+}
+
+void MainWindow::on_actionEnglish_triggered()
+{
+    updateLanguage("EN");
 }
