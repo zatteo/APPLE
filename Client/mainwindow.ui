@@ -421,7 +421,7 @@ background-color: rgba(180, 180, 180,230);</string>
       </rect>
      </property>
      <property name="text">
-      <string>0:00</string>
+      <string/>
      </property>
     </widget>
     <widget class="QLabel" name="end">
@@ -434,7 +434,7 @@ background-color: rgba(180, 180, 180,230);</string>
       </rect>
      </property>
      <property name="text">
-      <string>0:00</string>
+      <string/>
      </property>
     </widget>
     <zorder>lecture</zorder>
@@ -453,7 +453,7 @@ background-color: rgba(180, 180, 180,230);</string>
      <x>0</x>
      <y>0</y>
      <width>1124</width>
-     <height>22</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuParam_tres">

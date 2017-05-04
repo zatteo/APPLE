@@ -59,6 +59,8 @@ private:
     Serveur * s;
     QStateMachine * etat;
 
+    QMap<QString, QJsonArray> asso_titre_musique;
+
     QState * play;
     QState * pause;
     QState * avance_rapide;
