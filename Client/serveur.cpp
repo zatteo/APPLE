@@ -167,6 +167,7 @@ void Serveur::next(QString currentSong)
 
 void Serveur::previous(QString currentSong)
 {
+    qDebug() << "ok";
     for(int i = 0; i < w->getSongs().size(); i++)
     {
         if(w->getSongs().at(i).toObject().value("title") == currentSong)
