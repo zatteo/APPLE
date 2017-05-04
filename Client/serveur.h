@@ -41,7 +41,6 @@ public:
 
 public slots:
     void setVitesseAvantRapide(); // passe en mode avance rapide
-    void setVitesseArriereRapide(); // passe en mode retour rapide
     void setVitesseNormale(); // passe en mode vitesse normale
     void getCurrentStateMPV(); // récupèration de l'état actuel du serveur central
     void getData(QString nomDuFichier);
