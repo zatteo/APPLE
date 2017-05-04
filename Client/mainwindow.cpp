@@ -25,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
     timer->setInterval(500);
 
     ui->setupUi(this);
+    ui->Titre_2->hide();
 
     //etat de l'automate
     etat =new QStateMachine(this);
@@ -237,6 +238,7 @@ void MainWindow::UpdateInt(QJsonObject json)
         }
         else if(json["name"] == "filename"){
             ui->Titre_2->setText(json["data"].toString());
+            UpdateLocal(json["data"].toString());
         }
     }
 
@@ -256,6 +258,8 @@ void MainWindow::UpdateInt(QJsonObject json)
 
             ui->lecture->setMaximum(jsonTmp.value("duration").toInt());
             duree= jsonTmp.value("duration").toInt();
+            ui->Titre->setText(jsonTmp.value("TITLE").toString());
+            ui->artiste_2->setText(jsonTmp.value("ARTIST").toString());
         }
         // une pochette
         else if(json["name"] == "cover")
@@ -340,7 +344,9 @@ void MainWindow::UpdateLocal(QString title)
     }
 
     ui->Titre_2->setText(currentSongToPrint["title"].toString());
-
+    ui->Titre_2->hide();
+    ui->Titre->setText(currentSongToPrint["taglib"].toObject()["TITLE"].toString());
+    ui->artiste_2->setText(currentSongToPrint["taglib"].toObject()["ARTIST"].toString());
     ui->fond->setStyleSheet("background-image: url(\"" + currentSongToPrint["saveName"].toString() + "\");");
 }
 

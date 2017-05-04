@@ -298,30 +298,14 @@ void Serveur::getCurrentStateMPV()
 }
 
 void Serveur::getData(QString nomDuFichier)
-{
-    // si metadata pas dans songs, on la demande
-    if(!w->isTaglibPresent(nomDuFichier))
-    {
-        // requête des métadonnées
-        QJsonObject songParsed;
-        songParsed["event"] = "request";
-        songParsed["name"] = "song";
-        songParsed["data"] = nomDuFichier;
+{  
+    // requête des métadonnées
+    QJsonObject songParsed;
+    songParsed["event"] = "request";
+    songParsed["name"] = "song";
+    songParsed["data"] = nomDuFichier;
 
-        send(songParsed);
-    }
-
-    // si cover pas dans songs, on la demande
-    if(!w->isCoverPresent(nomDuFichier))
-    {
-        // requête de la pochette
-        QJsonObject songCoverParsed;
-        songCoverParsed["event"] = "request";
-        songCoverParsed["name"] = "cover";
-        songCoverParsed["data"] = nomDuFichier;
-
-        send(songCoverParsed);
-    }
+    send(songParsed);
 }
 
 /* récupére la MainWindow

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1124</width>
-    <height>648</height>
+    <height>653</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -437,6 +437,22 @@ background-color: rgba(180, 180, 180,230);</string>
       <string/>
      </property>
     </widget>
+    <widget class="QLabel" name="Titre">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>10</y>
+       <width>391</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">font: 15pt &quot;Ubuntu&quot;;</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
     <zorder>lecture</zorder>
     <zorder>sound_2</zorder>
     <zorder>horizontalLayoutWidget_2</zorder>
@@ -445,6 +461,7 @@ background-color: rgba(180, 180, 180,230);</string>
     <zorder>volume</zorder>
     <zorder>current</zorder>
     <zorder>end</zorder>
+    <zorder>Titre</zorder>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -479,13 +496,7 @@ background-color: rgba(180, 180, 180,230);</string>
     <addaction name="menuLangues"/>
     <addaction name="action_propos"/>
    </widget>
-   <widget class="QMenu" name="menuyolo">
-    <property name="title">
-     <string>yolo</string>
-    </property>
-   </widget>
    <addaction name="menuParam_tres"/>
-   <addaction name="menuyolo"/>
   </widget>
   <action name="actionFrances">
    <property name="text">
