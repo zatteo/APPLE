@@ -7,6 +7,8 @@
 #include <QListWidgetItem>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QTimer>
+
 
 namespace Ui {
     class MainWindow;
@@ -39,6 +41,9 @@ private slots:
     void on_lecture_valueChanged(int position);
     void on_lecture_sliderPressed();
     void on_lecture_sliderReleased();
+    void AvanceRapide();
+    void RetourRapide();
+    void AvanceNormal();
 
 private:
     Ui::MainWindow *ui;
@@ -52,6 +57,7 @@ private:
     QState * start;
     QState * next;
     QState * previous;
+    QTimer * timer;
     QImage imageFromJson(const QJsonValue & val);
 
     QJsonArray songs; // liste des morceaux

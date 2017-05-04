@@ -4,23 +4,21 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
-#include <QTimer>
 #include <QFile>
 
 int mute=1; //mute = 0
 int duree=0;
 int click= 0, modif=0;
-QTimer * rapide;
 
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    rapide= new QTimer(this);
-    rapide->setSingleShot(true);
-    rapide->setTimerType(Qt::PreciseTimer);
-    rapide->setInterval(1500);
+    timer= new QTimer(this);
+    timer->setSingleShot(true);
+    timer->setTimerType(Qt::PreciseTimer);
+    timer->setInterval(500);
 
     ui->setupUi(this);
 
@@ -44,8 +42,8 @@ MainWindow::MainWindow(QWidget *parent) :
     next->addTransition(ui->next_2, SIGNAL(released()), play);
     previous->addTransition(ui->previous_2, SIGNAL(released()), play);
 
-    next->addTransition(rapide, SIGNAL(timeout()), avance_rapide);
-    previous->addTransition(rapide, SIGNAL(timeout()), retour_rapide);
+    next->addTransition(timer, SIGNAL(timeout()), avance_rapide);
+    previous->addTransition(timer, SIGNAL(timeout()), retour_rapide);
 
     avance_rapide->addTransition(ui->next_2, SIGNAL(released()), play);
     retour_rapide->addTransition(ui->previous_2, SIGNAL(released()), play);
@@ -57,9 +55,10 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(play, SIGNAL(entered()), this, SLOT(FPause()));
     QObject::connect(pause, SIGNAL(entered()), this, SLOT(FPlay()));
 
-
-    QObject::connect(next, SIGNAL(entered()), SLOT(rapide->start();));
-    QObject::connect(previous, SIGNAL(entered()), SLOT(rapide->start();));
+    QObject::connect(next, SIGNAL(entered()), timer, SLOT(start()));
+    QObject::connect(previous, SIGNAL(entered()), timer, SLOT(start()));
+    QObject::connect(avance_rapide, SIGNAL(entered()), this, SLOT(AvanceRapide()));
+    QObject::connect(avance_rapide, SIGNAL(exited()), this, SLOT(AvanceNormal()));
     QObject::connect(ui->liste_musique, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(Update(QListWidgetItem*)));
 
     etat->setInitialState(start);
@@ -111,6 +110,13 @@ void MainWindow::Update(QListWidgetItem * item)
     ui->Titre_2->setText(item->text());
     s->loadAndPlayMPV(item->text()); // charge un fichier et lance la lecture sur le serveur central
 }
+
+void MainWindow::AvanceRapide()
+{ s->setVitesseAvantRapide(); }
+void MainWindow::AvanceNormal()
+{ s->setVitesseNormale(); }
+void MainWindow::RetourRapide()
+{ s->setVitesseArriereRapide(); }
 
 void MainWindow::UpdateInt(QJsonObject json)
 {
