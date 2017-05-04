@@ -76,6 +76,13 @@ void Serveur::loadAndPlayAPlaylistMPV(QString nomDuFichier)
     QJsonObject commandeMPV = buildACommand({"loadlist", "Playlists/" + nomDuFichier});
 
     send(commandeMPV);
+
+    QJsonObject jsonPlaylist;
+    jsonPlaylist["event"] = "request";
+    jsonPlaylist["name"] = "playlist";
+    jsonPlaylist["data"] = "Playlists/" + nomDuFichier;
+
+    send(jsonPlaylist);
 }
 
 /* charge une radio et lance la lecture sur le serveur central
