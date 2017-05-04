@@ -49,6 +49,7 @@ private:
     QState * start;
     QState * next;
     QState * previous;
+    QImage imageFromJson(const QJsonValue & val);
 
 signals:
     void SPlay();

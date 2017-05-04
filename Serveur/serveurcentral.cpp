@@ -11,11 +11,13 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QDir>
+#include <QImage>
+#include <QBuffer>
 
 ServeurCentral::ServeurCentral(QObject *parent) : QObject(parent), socketMPV(new QLocalSocket(this))
 {
     // chargements des morceaux disponibles
-    loadLocalSongs();
+    loadLocalFiles();
 
     serveurClient = new QLocalServer();
     serveurClient->setSocketOptions(QLocalServer::UserAccessOption);
@@ -130,7 +132,14 @@ void ServeurCentral::readSocketClient()
             if(retourClient["command"].isArray() && retourClient["command"].toArray().at(0).toString() == "loadfile")
             {
                 // on formate la nouvelle commande avec le chemin des musiques
-                send(socketMPV, buildACommand({"loadfile", songsPath + "/" + retourClient["command"].toArray().at(1).toString()}));
+                QString newPath = songsPath + "/" + retourClient["command"].toArray().at(1).toString();
+                send(socketMPV, buildACommand({"loadfile", newPath}));
+            }
+            else if(retourClient["command"].isArray() && retourClient["command"].toArray().at(0).toString() == "loadlist")
+            {
+                // on formate la nouvelle commande avec le chemin des musiques
+                QString newPath = songsPath + "/" + retourClient["command"].toArray().at(1).toString();
+                send(socketMPV, buildACommand({"loadlist", newPath}));
             }
             else
             {
@@ -214,6 +223,8 @@ QJsonObject ServeurCentral::buildACommand(QJsonArray arguments)
  */
 void ServeurCentral::send(QLocalSocket *socket, QJsonObject json)
 {
+    qDebug() << "envoi de : " << json;
+
     QByteArray bytes = QJsonDocument(json).toJson(QJsonDocument::Compact) + "\n";
     if(socket != NULL) {
       socket->write(bytes.data(), bytes.length());
@@ -222,32 +233,47 @@ void ServeurCentral::send(QLocalSocket *socket, QJsonObject json)
 
 /* charge les morceaux disponibles localement
  */
-void ServeurCentral::loadLocalSongs()
+void ServeurCentral::loadLocalFiles()
 {
-    // on récupère les fichiers
-    QStringList list;
+    // on récupère les différents fichiers
+    QStringList songsList, playlistsList, radiosList;
 
+    // on s'adapte au dossier par défaut local en fonction de la langue
     if(QDir(QDir::home().absolutePath() + "/Music").exists())
     {
-        list = QDir(QDir::home().absolutePath() + "/Music").entryList();
+        songsList = QDir(QDir::home().absolutePath() + "/Music").entryList();
+        playlistsList = QDir(QDir::home().absolutePath() + "/Music/Playlists").entryList();
+        radiosList = QDir(QDir::home().absolutePath() + "/Music/Radios").entryList();
         songsPath = QDir::home().absolutePath() + "/Music";
     }
     else if(QDir(QDir::home().absolutePath() + "/Musique").exists())
     {
-        list = QDir(QDir::home().absolutePath() + "/Musique").entryList();
+        songsList = QDir(QDir::home().absolutePath() + "/Musique").entryList();
+        playlistsList = QDir(QDir::home().absolutePath() + "/Musique/Playlists").entryList();
+        radiosList = QDir(QDir::home().absolutePath() + "/Musique/Radios").entryList();
         songsPath = QDir::home().absolutePath() + "/Musique";
     }
 
-    // on supprime les fichiers qui ne correspondent pas à des morceaux
-
-    list.removeOne(".");
-    list.removeOne("..");
-
-    for(int i = 0; i < list.size(); i++)
+    // on ajoute seulement les fichiers qui correspondent à des morceaux, des playlists, des radios
+    for(int i = 0; i < songsList.size(); i++)
     {
-        if(isValidSong(list.at(i)))
+        if(isValidSong(songsList.at(i)))
         {
-            songs.append(QJsonObject({{"title", list.at(i)}}));
+            songs.append(QJsonObject({{"title", songsList.at(i)}}));
+        }
+    }
+    for(int i = 0; i < playlistsList.size(); i++)
+    {
+        if(isValidPlaylist(playlistsList.at(i)))
+        {
+            playlists.append(QJsonObject({{"title", playlistsList.at(i)}}));
+        }
+    }
+    for(int i = 0; i < radiosList.size(); i++)
+    {
+        if(isValidPlaylist(radiosList.at(i)))
+        {
+            radios.append(QJsonObject({{"title", radiosList.at(i)}}));
         }
     }
 }
@@ -269,6 +295,25 @@ bool ServeurCentral::isValidSong(QString song)
         return false;
     }
 }
+
+/* vérifie si le nom du fichier correspond à radio
+ */
+bool ServeurCentral::isValidPlaylist(QString radio)
+{
+    if(radio.endsWith(".pls"))
+    {
+        return true;
+    }
+    else if(radio.endsWith(".m3u"))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 
 QJsonObject ServeurCentral::getTags(QString fileName)
 {
@@ -304,9 +349,30 @@ QJsonObject ServeurCentral::getTags(QString fileName)
         }
 
         TagLib::ID3v2::AttachedPictureFrame *coverImg = static_cast<TagLib::ID3v2::AttachedPictureFrame *>(frameList.front());
-        newTags["pictureData"] = coverImg->picture().data();
-        newTags["pictureSize"] = (int)coverImg->picture().size();
+
+        // sinon on encode
+        QImage coverQImg;
+        coverQImg.loadFromData((const uchar *) coverImg->picture().data(), coverImg->picture().size());
+        coverQImg = coverQImg.scaled(100, 100, Qt::KeepAspectRatio);
+
+        newTags["pictureData"] = jsonValFromImage(coverQImg);
     }
 
     return newTags;
+}
+
+/* encodage d'une image pour JSON
+ */
+QJsonValue ServeurCentral::jsonValFromImage(const QImage & p)
+{
+  QByteArray data;
+
+  QBuffer buffer{&data};
+  buffer.open(QIODevice::WriteOnly);
+
+  p.save(&buffer, "PNG"); // convention = PNG
+
+  auto encoded = buffer.data().toBase64(); // convention = base64
+
+  return QJsonValue(QString::fromLatin1(encoded));
 }

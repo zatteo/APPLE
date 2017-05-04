@@ -1,5 +1,4 @@
-QT += core network
-QT -= gui
+QT += core network gui
 
 CONFIG += c++11
 

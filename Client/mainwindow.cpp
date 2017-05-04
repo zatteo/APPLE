@@ -67,6 +67,7 @@ MainWindow::MainWindow(QWidget *parent) :
     s = new Serveur();
     s->connect("/tmp/socketClient");
     s->requestAllSongs();
+    s->requestAllRadios();
 }
 
 MainWindow::~MainWindow()
@@ -134,6 +135,7 @@ void MainWindow::UpdateInt(QJsonObject json)
         }
     }
     if(json["event"] == "response"){
+        // toutes les musiques
         if(json["name"] == "songs"){
             int i;
             QJsonArray tmp= json["data"].toArray();
@@ -141,16 +143,25 @@ void MainWindow::UpdateInt(QJsonObject json)
                 add_liste_musique(tmp.at(i).toObject().value("title").toString());
             }
         }
+        // une musique
         else if(json["name"] == "song"){
+            // on traite les métadonnées
             QJsonObject jsonTmp = json.value("data").toObject().value("taglib").toObject();
             ui->lecture->setMaximum(jsonTmp.value("duration").toInt());
             duree= jsonTmp.value("duration").toInt();
-//            qDebug() << jsonTmp.value("pictureData").toString().toWCharArray();
 
-            QImage coverQImg;
-//            coverQImg.loadFromData(jsonTmp.value("pictureData").toString().toWCharArray());
-            coverQImg.save("yolo.jpg", 0, 100);
+            // on traite l'image
+            QImage coverQImg = imageFromJson(json.value("data").toObject().value("taglib").toObject().value("pictureData"));
 
+            coverQImg.save("cover.jpg", 0, 50);
+        }
+        // toutes les playlists
+        else if(json["name"] == "playlists"){
+            // équivalent à songs mais avec les playlists (NON IMPLEMENTE)
+        }
+        // toutes les radios
+        else if(json["name"] == "radios"){
+            // équivalent à songs mais avec les radios
         }
     }
 }
@@ -192,6 +203,18 @@ void MainWindow::setMainWindow(MainWindow *window)
 void MainWindow::on_volume_valueChanged(int value)
 {
     s->setVolumeMPV(value);
+}
+
+/* encodage d'une image depuis JSON
+ */
+QImage MainWindow::imageFromJson(const QJsonValue & val)
+{
+  QByteArray encoded = val.toString().toLatin1();
+
+  QImage p;
+  p.loadFromData(QByteArray::fromBase64(encoded), "PNG"); // convention = PNG = base64
+
+  return p;
 }
 
 void MainWindow::on_lecture_valueChanged(int value)

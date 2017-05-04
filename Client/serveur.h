@@ -20,11 +20,16 @@ public:
     explicit Serveur(QObject *parent = 0);
     ~Serveur();
     void connect(QString adresse);
-    void loadAndPlayMPV(QString nomDuFichier); // charge un fichier et lance la lecture sur le serveur central
-    void playMPV(bool play); // met en play/pause la lecture sur le serveur central
-    void setVolumeMPV(int volume); // change le volume sur le serveur central
-    void muteMPV(bool mute); // mute le volume sur le serveur central
-    void setPositionMPV(int position); // change la position de la musique sur le serveur central
+    void loadAndPlayMPV(QString nomDuFichier); // charge un fichier et lance la lecture
+    void loadAndPlayAPlaylistMPV(QString nomDuFichier); // charge une playlist et lance la lecture
+    void loadAndPlayARadioMPV(QString nomDuFichier); // charge une radio et lance la lecture
+    void playMPV(bool play); // met en play/pause la lecture
+    void setVolumeMPV(int volume); // change le volume
+    void muteMPV(bool mute); // mute le volume
+    void setPositionMPV(int position); // change la position de la musique
+    void setVitesseAvantRapide(); // passe en mode avance rapide
+    void setVitesseArriereRapide(); // passe en mode retour rapide
+    void setVitesseNormale(); // passe en mode vitesse normale
     void setMainWindow(MainWindow *window); // récupére la MainWindow
     void requestAllSongs();
     void requestAllPlaylists();
