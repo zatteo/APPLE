@@ -43,6 +43,8 @@ void ServeurCentral::connect(QLocalSocket *socket, QString adresse)
     }
 }
 
+/* connexion d'un client, paramétrage des signaux et ajout dans la liste des clients
+ */
 void ServeurCentral::clientConnected()
 {
     QLocalSocket *socket = serveurClient->nextPendingConnection();
@@ -58,6 +60,8 @@ void ServeurCentral::clientConnected()
     qDebug() << "Un client s'est connecté.";
 }
 
+/* déconnexion d'un client et suppression de la liste des clients
+ */
 void ServeurCentral::clientDisconnected()
 {
     QLocalSocket *socket = qobject_cast<QLocalSocket *>(sender());
@@ -242,8 +246,6 @@ void ServeurCentral::coverRequested(QLocalSocket *socket, QString title)
             coverParsed["data"] = currentSong["cover"];
 
             send(socket, coverParsed);
-
-            qDebug() << "coverParsed :" << coverParsed;
         }
     }
 }
@@ -278,7 +280,7 @@ void ServeurCentral::loadLocalFiles()
     // on récupère les différents fichiers
     QStringList songsList, playlistsList, radiosList;
 
-    // on s'adapte au dossier par défaut local en fonction de la langue
+    // on s'adapte au dossier par défaut local en fonction de la langue et on récupère les fichiers
     if(QDir(QDir::home().absolutePath() + "/Music").exists())
     {
         songsList = QDir(QDir::home().absolutePath() + "/Music").entryList();
@@ -403,11 +405,11 @@ QJsonObject ServeurCentral::getCover(QString fileName)
         // sinon on encode
         QImage coverQImg;
         coverQImg.loadFromData((const uchar *) coverImg->picture().data(), coverImg->picture().size());
-        coverQImg = coverQImg.scaled(1131, 581, Qt::IgnoreAspectRatio);
+        coverQImg = coverQImg.scaled(1131, 581, Qt::KeepAspectRatio);
 
         QFileInfo fileInfo(fileName);
 
-        newCover["title"] = fileInfo.completeBaseName();
+        newCover["title"] = fileInfo.fileName();
         newCover["cover"] = jsonValFromImage(coverQImg);
     }
 

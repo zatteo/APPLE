@@ -37,6 +37,8 @@ void Serveur::loadAndPlayMPV(QString nomDuFichier)
     // si metadata pas dans songs, on la demande
     if(!w->isTaglibPresent(nomDuFichier))
     {
+        qDebug() << nomDuFichier;
+
         // requête des métadonnées
         QJsonObject songParsed;
         songParsed["event"] = "request";
@@ -49,6 +51,7 @@ void Serveur::loadAndPlayMPV(QString nomDuFichier)
     // si cover pas dans songs, on la demande
     if(!w->isCoverPresent(nomDuFichier))
     {
+        qDebug() << nomDuFichier;
         // requête de la pochette
         QJsonObject songCoverParsed;
         songCoverParsed["event"] = "request";
