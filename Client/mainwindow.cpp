@@ -190,7 +190,6 @@ void MainWindow::on_volume_valueChanged(int value)
     s->setVolumeMPV(value);
 }
 
-<<<<<<< HEAD
 /* encodage d'une image depuis JSON
  */
 QImage MainWindow::imageFromJson(const QJsonValue & val)
@@ -201,7 +200,8 @@ QImage MainWindow::imageFromJson(const QJsonValue & val)
   p.loadFromData(QByteArray::fromBase64(encoded), "PNG"); // convention = PNG = base64
 
   return p;
-=======
+}
+
 void MainWindow::on_lecture_valueChanged(int value)
 {
     if(click == 0)
@@ -218,5 +218,4 @@ void MainWindow::on_lecture_sliderPressed()
 void MainWindow::on_lecture_sliderReleased()
 {
     modif= 0;
->>>>>>> 2469cb33a39f8b94adfb29a72a29b4884d31ccce
 }
