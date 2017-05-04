@@ -32,6 +32,8 @@ public:
     bool isTaglibPresent(QString title);
     bool isCoverPresent(QString title);
 
+    void UpdateLocal(QString title);
+
 private slots:
     void on_sound_2_released();
     void FPlay();

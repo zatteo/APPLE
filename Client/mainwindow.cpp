@@ -78,6 +78,7 @@ MainWindow::MainWindow(QWidget *parent) :
     s = new Serveur();
     s->connect("/tmp/socketClient");
     s->requestAllSongs();
+    s->requestAllPlaylists();
     s->requestAllRadios();
 }
 
@@ -251,8 +252,22 @@ void MainWindow::UpdateInt(QJsonObject json)
     }
 }
 
+/* met à jour l'interface avec les informations disponibles sur la musique
+ * QString title: le titre du morceau
+ */
 void MainWindow::UpdateLocal(QString title)
 {
+//    QJsonObject
+
+//    for(int i = 0; i < songs.size(); i++)
+//    {
+//        if(songs.at(i).toObject()["title"].toString() == title)
+//        {
+//             songs.at(i).toObject().contains("cover");
+//        }
+//    }
+
+//    ui->fond->setStyleSheet("background-image: url(\"" + saveName + "\");");
 
 }
 
