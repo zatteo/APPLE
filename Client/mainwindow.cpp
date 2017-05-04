@@ -4,16 +4,25 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QTimer>
 
 int mute=1; //mute = 0
 int duree=0;
 int click= 0, modif=0;
+QTimer * rapide;
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    rapide= new QTimer(this);
+    rapide->setSingleShot(true);
+    rapide->setTimerType(Qt::PreciseTimer);
+    rapide->setInterval(1500);
+
     ui->setupUi(this);
+
     etat =new QStateMachine(this);
     start= new QState(etat);
     play= new QState(etat);
@@ -22,16 +31,18 @@ MainWindow::MainWindow(QWidget *parent) :
     retour_rapide= new QState(etat);
     next= new QState(etat);
     previous= new QState(etat);
-
     start->addTransition(this, SIGNAL(SPlay()), play);
     start->addTransition(ui->liste_musique, SIGNAL(doubleClicked(QModelIndex)), play);
 
-    play->addTransition(ui->next_2, SIGNAL(pressed()), avance_rapide);
-    play->addTransition(ui->previous_2, SIGNAL(pressed()), retour_rapide);
+    play->addTransition(ui->next_2, SIGNAL(pressed()), next);
+    play->addTransition(ui->previous_2, SIGNAL(pressed()), previous);
     play->addTransition(ui->play_2, SIGNAL(clicked()), pause);
-    play->addTransition(ui->next_2, SIGNAL(clicked()), next);
-    play->addTransition(ui->previous_2, SIGNAL(clicked()), previous);
 
+    next->addTransition(ui->next_2, SIGNAL(released()), play);
+    previous->addTransition(ui->previous_2, SIGNAL(released()), play);
+
+    next->addTransition(rapide, SIGNAL(timeout()), avance_rapide);
+    previous->addTransition(rapide, SIGNAL(timeout()), retour_rapide);
 
     avance_rapide->addTransition(ui->next_2, SIGNAL(released()), play);
     retour_rapide->addTransition(ui->previous_2, SIGNAL(released()), play);
@@ -40,6 +51,10 @@ MainWindow::MainWindow(QWidget *parent) :
     // QObject::connect(start, SIGNAL(entered()), this, SLOT(getInfo()));
     QObject::connect(play, SIGNAL(entered()), this, SLOT(FPause()));
     QObject::connect(pause, SIGNAL(entered()), this, SLOT(FPlay()));
+
+
+    QObject::connect(next, SIGNAL(entered()), SLOT(rapide->start();));
+    QObject::connect(previous, SIGNAL(entered()), SLOT(rapide->start();));
     QObject::connect(ui->liste_musique, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(Update(QListWidgetItem*)));
 
     etat->setInitialState(start);
@@ -225,3 +240,19 @@ void MainWindow::on_lecture_sliderReleased()
 {
     modif= 0;
 }
+
+QJsonArray MainWindow::getSongs()
+{
+    return songs;
+}
+
+QJsonArray MainWindow::getPlaylists()
+{
+    return playlists;
+}
+
+QJsonArray MainWindow::getRadios()
+{
+    return radios;
+}
+

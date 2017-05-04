@@ -23,6 +23,9 @@ public:
     ~MainWindow();
     void setMainWindow(MainWindow *window); // récupére la MainWindow
     void UpdateInt(QJsonObject json);
+    QJsonArray getSongs();
+    QJsonArray getPlaylists();
+    QJsonArray getRadios();
 
 private slots:
     void on_sound_2_released();
@@ -32,19 +35,10 @@ private slots:
     void add_liste_musique(QString nom);
     void add_liste_groupe(QString nom);
     QString intToTimer(int value);
-
     void on_volume_valueChanged(int value);
-
     void on_lecture_valueChanged(int position);
-
     void on_lecture_sliderPressed();
-
     void on_lecture_sliderReleased();
-
-protected:
-    QJsonArray songs; // liste des morceaux
-    QJsonArray playlists; // liste des playlists
-    QJsonArray radios; // liste des radios
 
 private:
     Ui::MainWindow *ui;
@@ -59,6 +53,10 @@ private:
     QState * next;
     QState * previous;
     QImage imageFromJson(const QJsonValue & val);
+
+    QJsonArray songs; // liste des morceaux
+    QJsonArray playlists; // liste des playlists
+    QJsonArray radios; // liste des radios
 
 signals:
     void SPlay();

@@ -122,17 +122,17 @@ void Serveur::setPositionMPV(int position)
 
 void Serveur::next(QString currentSong)
 {
-    for(int i = 0; i < w->songs.size(); i++)
+    for(int i = 0; i < w->getSongs().size(); i++)
     {
-        if(w->songs.at(i).toObject().value("title") == currentSong)
+        if(w->getSongs().at(i).toObject().value("title") == currentSong)
         {
-            if(i == w->songs.size() - 1)
+            if(i == w->getSongs().size() - 1)
             {
-                loadAndPlayMPV(w->songs.at(0).toObject().value("title"));
+                loadAndPlayMPV(w->getSongs().at(0).toObject().value("title").toString());
             }
             else
             {
-                loadAndPlayMPV(w->songs.at(i + 1).toObject().value("title"));
+                loadAndPlayMPV(w->getSongs().at(i + 1).toObject().value("title").toString());
             }
         }
     }
@@ -140,17 +140,17 @@ void Serveur::next(QString currentSong)
 
 void Serveur::previous(QString currentSong)
 {
-    for(int i = 0; i < w->size(); i++)
+    for(int i = 0; i < w->getSongs().size(); i++)
     {
-        if(w->songs.at(i).toObject().value("title") == currentSong)
+        if(w->getSongs().at(i).toObject().value("title") == currentSong)
         {
             if(i == 0)
             {
-                loadAndPlayMPV(w->songs.at(w->songs.size() - 1).toObject().value("title"));
+                loadAndPlayMPV(w->getSongs().at(w->getSongs().size() - 1).toObject().value("title").toString());
             }
             else
             {
-                loadAndPlayMPV(w->songs.at(i - 1).toObject().value("title"));
+                loadAndPlayMPV(w->getSongs().at(i - 1).toObject().value("title").toString());
             }
         }
     }
