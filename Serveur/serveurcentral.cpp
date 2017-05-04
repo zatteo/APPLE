@@ -131,19 +131,15 @@ void ServeurCentral::readSocketClient()
         {
             if(retourClient["command"].isArray() && retourClient["command"].toArray().at(0).toString() == "loadfile")
             {
-                QString newPath = songsPath + "/" + retourClient["command"].toArray().at(1).toString();
                 // on formate la nouvelle commande avec le chemin des musiques
-                QJsonObject yolo = buildACommand({"loadfile", newPath});
-                qDebug() << yolo;
-                send(socketMPV, buildACommand({"loadfile", yolo}));
+                QString newPath = songsPath + "/" + retourClient["command"].toArray().at(1).toString();
+                send(socketMPV, buildACommand({"loadfile", newPath}));
             }
-            if(retourClient["command"].isArray() && retourClient["command"].toArray().at(0).toString() == "loadlist")
+            else if(retourClient["command"].isArray() && retourClient["command"].toArray().at(0).toString() == "loadlist")
             {
-                QString newPath = songsPath + "/" + retourClient["command"].toArray().at(1).toString();
                 // on formate la nouvelle commande avec le chemin des musiques
-                QJsonObject yolo = buildACommand({"loadlist", newPath});
-                qDebug() << yolo;
-                send(socketMPV, yolo);
+                QString newPath = songsPath + "/" + retourClient["command"].toArray().at(1).toString();
+                send(socketMPV, buildACommand({"loadlist", newPath}));
             }
             else
             {
@@ -227,6 +223,8 @@ QJsonObject ServeurCentral::buildACommand(QJsonArray arguments)
  */
 void ServeurCentral::send(QLocalSocket *socket, QJsonObject json)
 {
+    qDebug() << "envoi de : " << json;
+
     QByteArray bytes = QJsonDocument(json).toJson(QJsonDocument::Compact) + "\n";
     if(socket != NULL) {
       socket->write(bytes.data(), bytes.length());
