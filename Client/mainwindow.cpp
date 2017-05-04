@@ -11,6 +11,7 @@
 int mute=1; //mute = 0
 int duree=0;
 int click= 0, modif=0;
+int radio=0;
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -58,7 +59,6 @@ MainWindow::MainWindow(QWidget *parent) :
     pause->addTransition(ui->previous_2, SIGNAL(pressed()), previous);
 
 
-    // QObject::connect(start, SIGNAL(entered()), this, SLOT(getInfo()));
     QObject::connect(play, SIGNAL(entered()), this, SLOT(FPause()));
     QObject::connect(pause, SIGNAL(entered()), this, SLOT(FPlay()));
 
@@ -77,7 +77,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->liste_groupe->clear();
     add_liste_groupe("Titres");
     add_liste_groupe("Radios");
-    add_liste_groupe("Playlistes");
 
     s = new Serveur();
     s->connect("/tmp/socketClient");
@@ -147,9 +146,23 @@ void MainWindow::FPause()
 //Update le titre et lance la musique
 void MainWindow::Update(QListWidgetItem * item)
 {
-//    ui->Titre_2->setText(item->text());
-    UpdateLocal(item->text());
-    s->loadAndPlayMPV(item->text()); // charge un fichier et lance la lecture sur le serveur central
+    ui->Titre_2->setText(item->text());
+    if(radio == 0){
+        ui->lecture->show();
+        ui->end->show();
+        ui->current->show();
+        ui->next_2->show();
+        ui->previous_2->show();
+        s->loadAndPlayMPV(item->text()); // charge un fichier et lance la lecture sur le serveur central
+    }
+    else if(radio == 1){
+        ui->lecture->hide();
+        ui->end->hide();
+        ui->current->hide();
+        ui->next_2->hide();
+        ui->previous_2->hide();
+        s->loadAndPlayARadioMPV(item->text());
+   }
 }
 
 
@@ -202,7 +215,8 @@ void MainWindow::UpdateInt(QJsonObject json)
                 int tmp= int(json.value("data").toDouble());
                 ui->current->setText(intToTimer(tmp));
                 ui->lecture->setValue(tmp);
-                ui->end->setText("-" + intToTimer(duree-tmp));
+                tmp = duree - tmp;
+                ui->end->setText("-" + intToTimer(tmp));
                 click= 0;
             }
         }
@@ -249,13 +263,15 @@ void MainWindow::UpdateInt(QJsonObject json)
         // toutes les playlists
         else if(json["name"] == "playlists"){
             playlists = json["data"].toArray();
-
+            int i;
+            for(i=0; i<playlists.size(); i++){
+                add_liste_groupe(playlists.at(i).toObject().value("title").toString());
+            }
             // équivalent à songs mais avec les playlists (NON IMPLEMENTE)
         }
         // toutes les radios
         else if(json["name"] == "radios"){
             radios = json["data"].toArray();
-
             // équivalent à songs mais avec les radios
         }
     }
@@ -275,6 +291,7 @@ void MainWindow::UpdateInt(QJsonObject json)
         // titre de la musique en cour
         else if(json["request_id"] ==2){
             ui->Titre_2->setText(json["data"].toString());
+            s->getData(json["data"].toString());
         }
         // son mute ou pas
         if(json["request_id"] == 3){
@@ -481,12 +498,16 @@ bool MainWindow::isCoverPresent(QString title)
 void MainWindow::on_liste_groupe_itemClicked(QListWidgetItem *item)
 {
     QJsonArray tab;
-    if(item->text() == "Radios")
-        tab= radios;
-    else if(item->text() == "Titres")
+    if(item->text() == "Titres"){
         tab= songs;
-    else if(item->text() == "Playlistes")
-        tab= playlists;
+        radio= 0;
+    }
+    if(item->text() == "Radios"){
+        tab= radios;
+        radio= 1;
+    }
+
+
     ui->liste_musique->clear();
     int i;
     for(i=0; i< tab.size(); i++){
